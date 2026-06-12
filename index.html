@@ -1,10 +1,47 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
 <title>Sweet Pink Money Book</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/jpeg" href="Boot.jpg">
+<link rel="shortcut icon" href="Boot.jpg">
+
+<!-- iPhone / iPad -->
+<link rel="apple-touch-icon" href="Boot.jpg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sweet Pink Money">
+
+<!-- Android -->
+<meta name="theme-color" content="#ff5fa2">
+
+<!-- SEO -->
+<meta name="description" content="ระบบบันทึกรายรับ รายจ่าย เงินออม ทองออม และจัดการการเงินส่วนตัว">
+
+<!-- Open Graph (Facebook / LINE / Messenger) -->
+<meta property="og:title" content="Sweet Pink Money Book">
+<meta property="og:description" content="ระบบบันทึกรายรับ รายจ่าย เงินออม ทองออม และจัดการการเงินส่วนตัว">
+
+<!-- เปลี่ยน URL นี้เป็น URL จริงของเว็บ -->
+<meta property="og:image" content="https://onouma1199-a11y.github.io/Boot.jpg">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="th_TH">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sweet Pink Money Book">
+<meta name="twitter:description" content="ระบบบันทึกรายรับ รายจ่าย เงินออม ทองออม">
+<meta name="twitter:image" content="https://onouma1199-a11y.github.io/Boot.jpg">
+
+<!-- Libraries -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -818,6 +855,27 @@ db.receipts = (receipts || []).map(x => ({
     shop:x.shop,
     receipt:x.receipt_url
   }));
+// สร้างหมวดจากข้อมูลจริงใน Supabase อัตโนมัติ
+const incomeCats = [...new Set(db.income.map(x => x.category).filter(Boolean))]
+  .map(name => ({
+    id: 'income_' + name,
+    type: 'income',
+    name,
+    icon: 'fa-solid fa-wallet'
+  }));
+
+const expenseCats = [...new Set(db.expense.map(x => x.category).filter(Boolean))]
+  .map(name => ({
+    id: 'expense_' + name,
+    type: 'expense',
+    name,
+    icon: 'fa-solid fa-receipt'
+  }));
+
+db.categories = [
+  ...incomeCats,
+  ...expenseCats
+];
 
   render();
 }
@@ -1027,21 +1085,115 @@ if(type==='loan'){
       <button class="btn" onclick="addReceipt()">บันทึกใบเสร็จ</button>
     </div>`;
   }
-  if(type==='category'){
+ if(type==='category'){
   h = `<div class="form">
-    <select id="f_type">
-      <option value="income">หมวดรายรับ</option>
-      <option value="expense">หมวดรายจ่าย</option>
-    </select>
 
-    <input id="f_name" placeholder="ชื่อหมวดหมู่">
+    <div class="card" style="box-shadow:none;margin:0;background:#fff">
+      <h3 style="margin:0 0 10px;color:var(--pink)">เพิ่ม / แก้ไขหมวดหมู่</h3>
 
-    <button class="btn" onclick="addCategory()">บันทึกหมวดหมู่</button>
+      <input type="hidden" id="f_category_id">
+
+      <select id="f_type">
+        <option value="income">หมวดรายรับ</option>
+        <option value="expense">หมวดรายจ่าย</option>
+      </select>
+
+      <input id="f_name" placeholder="ชื่อหมวดหมู่">
+
+      <button class="btn" onclick="saveCategory()">บันทึกหมวดหมู่</button>
+    </div>
+
+    <div class="card" style="box-shadow:none;margin:0;background:#fff">
+      <h3 style="margin:0 0 10px;color:var(--pink)">หมวดหมู่ที่มีอยู่</h3>
+      <div id="categoryManageList" class="list"></div>
+    </div>
+
   </div>`;
+
+  setTimeout(renderCategoryManageList, 50);
 }
-  formBody.innerHTML = h;
-  formModal.classList.add('show');
+
+formBody.innerHTML = h;
+formModal.classList.add('show');
 }
+
+function saveCategory(){
+  if(!val('f_name')){
+    return showError('กรอกชื่อหมวดก่อนค่ะ');
+  }
+
+  const catId = val('f_category_id');
+  const type = val('f_type');
+  const name = val('f_name');
+
+  if(catId){
+    const cat = db.categories.find(x => x.id === catId);
+    if(!cat) return showError('ไม่พบหมวดหมู่');
+
+    cat.type = type;
+    cat.name = name;
+    cat.icon = type === 'income'
+      ? 'fa-solid fa-wallet'
+      : 'fa-solid fa-receipt';
+
+    showSuccess('แก้ไขหมวดหมู่สำเร็จ');
+  }else{
+    db.categories.unshift({
+      id:id(),
+      type:type,
+      name:name,
+      icon:type === 'income'
+        ? 'fa-solid fa-wallet'
+        : 'fa-solid fa-receipt'
+    });
+
+    showSuccess('เพิ่มหมวดหมู่สำเร็จ');
+  }
+
+  save();
+  render();
+
+  el('f_category_id').value = '';
+  el('f_name').value = '';
+
+  renderCategoryManageList();
+}
+
+function renderCategoryManageList(){
+  const box = el('categoryManageList');
+  if(!box) return;
+
+  box.innerHTML = db.categories.length
+    ? db.categories.map(c => `
+      <div class="item">
+        <div>
+          <h4>
+            <i class="${c.icon || 'fa-solid fa-folder'}" style="color:var(--pink);margin-right:6px"></i>
+            ${c.name}
+          </h4>
+          <p>${c.type === 'income' ? 'หมวดรายรับ' : 'หมวดรายจ่าย'}</p>
+        </div>
+
+        <div class="actions">
+          <button class="mini" onclick="editCategory('${c.id}')">แก้ไข</button>
+          <button class="mini danger" onclick="deleteCategory('${c.id}')">ลบ</button>
+        </div>
+      </div>
+    `).join('')
+    : `<div class="empty">ยังไม่มีหมวดหมู่</div>`;
+}
+
+function editCategory(id){
+  const cat = db.categories.find(x => x.id === id);
+  if(!cat) return showError('ไม่พบหมวดหมู่');
+
+  el('f_category_id').value = cat.id;
+  el('f_type').value = cat.type;
+  el('f_name').value = cat.name;
+
+  el('f_name').focus();
+}
+
 function addCategory(){
   if(!val('f_name')) {
     return showError('กรอกชื่อหมวดก่อนค่ะ');
@@ -1523,19 +1675,13 @@ function item(title, sub, amount, cls, type, rid, img=''){
 function empty(txt='ยังไม่มีข้อมูล กดปุ่ม + เพื่อเพิ่มรายการได้เลยค่ะ'){ return `<div class="empty">${txt}</div>`; }
 function renderIncome(){
   const cats = db.categories.filter(c => c.type === 'income');
-
   incomeCategorySummary.innerHTML = cats.map(c => {
     const total = sum(db.income.filter(x => x.category === c.name));
-
     return `
       <div class="cat-card" onclick="openIncomeCategoryDetail('${c.name}')">
         <i class="${c.icon || 'fa-solid fa-wallet'} menu-icon"></i>
         <div>${c.name}</div>
         <b style="color:var(--green)">${money(total)}</b>
-
-        <button class="mini danger" onclick="event.stopPropagation(); deleteCategory('${c.id}')">
-          ลบ
-        </button>
       </div>
     `;
   }).join('');
@@ -1582,7 +1728,6 @@ function openIncomeCategoryDetail(categoryName){
   });
 }
 async function deleteCategory(id){
-
   const result = await Swal.fire({
     title: 'ลบหมวดหมู่ ?',
     text: 'หมวดหมู่นี้จะถูกลบออก',
@@ -1592,33 +1737,24 @@ async function deleteCategory(id){
     cancelButtonText: 'ยกเลิก',
     confirmButtonColor: '#ff5fa2'
   });
-
   if(!result.isConfirmed) return;
-
   db.categories =
-    db.categories.filter(x => x.id !== id);
-
+  db.categories.filter(x => x.id !== id);
   save();
-
   render();
-
+  renderCategoryManageList();
   showSuccess('ลบหมวดหมู่สำเร็จ');
 }
+
 function renderExpense(){
   const cats = db.categories.filter(c => c.type === 'expense');
-
   expenseCategorySummary.innerHTML = cats.map(c => {
     const total = sum(db.expense.filter(x => x.category === c.name));
-
     return `
       <div class="cat-card" onclick="openExpenseCategoryDetail('${c.name}')">
         <i class="${c.icon || 'fa-solid fa-receipt'} menu-icon"></i>
         <div>${c.name}</div>
         <b style="color:var(--red)">${money(total)}</b>
-
-        <button class="mini danger" onclick="event.stopPropagation(); deleteCategory('${c.id}')">
-          ลบ
-        </button>
       </div>
     `;
   }).join('');
