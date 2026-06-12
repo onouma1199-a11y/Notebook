@@ -345,7 +345,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
   .stat{padding:14px;min-height:120px}
   .stat b{font-size:22px}
   .grid2{grid-template-columns:1fr}
-  .category-grid{grid-template-columns:repeat(3,1fr)}
+  .category-grid{grid-template-columns:repeat(2,1fr)}
   .bottom-nav{grid-template-columns:1fr 1fr 78px 1fr 1fr}
   .plus{width:72px;height:60px}
 }
@@ -416,6 +416,50 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
 .quick:hover .quick-icon{
   transform:scale(1.08);
   transition:.2s;
+}
+.menu-icon{
+  display:block;
+  font-size:28px;
+  color:var(--pink);
+  margin-bottom:8px;
+}
+
+.cat-card{
+  min-width:0;
+  overflow:hidden;
+  word-break:break-word;
+  line-height:1.4;
+}
+
+.cat-card i{
+  font-size:28px;
+  color:var(--pink);
+  margin-bottom:8px;
+}
+
+.cat-card span{
+  display:none;
+}
+
+@media(max-width:520px){
+  .category-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+
+  .cat-card{
+    min-height:130px;
+    padding:14px 8px;
+    font-size:15px;
+  }
+
+  .cat-card b{
+    font-size:16px;
+  }
+
+  .menu-icon{
+    font-size:26px;
+  }
 }
 </style>
 </head>
@@ -808,7 +852,7 @@ function pageName(id){
   return {
     dashboard:[
       '<i class="fa-solid fa-heart" style="color:#ff5fa2"></i> สมุดเงินหวานๆ',
-      'บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และใบเสร็จ'
+      'บันทึกรายรับ รายจ่าย'
     ],
 
     income:[
@@ -990,8 +1034,6 @@ if(type==='loan'){
       <option value="expense">หมวดรายจ่าย</option>
     </select>
 
-    <input id="f_icon" placeholder="ไอคอน เช่น fa-solid fa-heart" value="fa-solid fa-heart">
-
     <input id="f_name" placeholder="ชื่อหมวดหมู่">
 
     <button class="btn" onclick="addCategory()">บันทึกหมวดหมู่</button>
@@ -1005,11 +1047,13 @@ function addCategory(){
     return showError('กรอกชื่อหมวดก่อนค่ะ');
   }
 
+  const type = val('f_type');
+
   db.categories.unshift({
     id: id(),
-    type: val('f_type'),
+    type: type,
     name: val('f_name'),
-    icon: val('f_icon') || 'fa-solid fa-heart'
+    icon: type === 'income' ? 'fa-solid fa-wallet' : 'fa-solid fa-receipt'
   });
 
   save();
@@ -1017,7 +1061,6 @@ function addCategory(){
   showSuccess('บันทึกหมวดหมู่สำเร็จ');
   render();
 }
-
 function calcLoanPreview(){
   const principal = num('f_total');
   const annualRate = num('f_interest');
@@ -1485,11 +1528,11 @@ function renderIncome(){
     const total = sum(db.income.filter(x => x.category === c.name));
 
     return `
-      <div class="cat-card" style="cursor:pointer" onclick="openIncomeCategoryDetail('${c.name}')">
-        <span>${c.icon}</span>
-        ${c.name}<br>
+      <div class="cat-card" onclick="openIncomeCategoryDetail('${c.name}')">
+        <i class="${c.icon || 'fa-solid fa-wallet'} menu-icon"></i>
+        <div>${c.name}</div>
         <b style="color:var(--green)">${money(total)}</b>
-        <br><br>
+
         <button class="mini danger" onclick="event.stopPropagation(); deleteCategory('${c.id}')">
           ลบ
         </button>
@@ -1568,11 +1611,11 @@ function renderExpense(){
     const total = sum(db.expense.filter(x => x.category === c.name));
 
     return `
-      <div class="cat-card" style="cursor:pointer" onclick="openExpenseCategoryDetail('${c.name}')">
-        <span>${c.icon}</span>
-        ${c.name}<br>
+      <div class="cat-card" onclick="openExpenseCategoryDetail('${c.name}')">
+        <i class="${c.icon || 'fa-solid fa-receipt'} menu-icon"></i>
+        <div>${c.name}</div>
         <b style="color:var(--red)">${money(total)}</b>
-        <br><br>
+
         <button class="mini danger" onclick="event.stopPropagation(); deleteCategory('${c.id}')">
           ลบ
         </button>
