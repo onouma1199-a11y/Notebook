@@ -164,7 +164,64 @@
       color:var(--muted);font-weight:900;background:#fffafd;
     }
     .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-    .bottom-nav{display:none}
+    .mobile-menu-btn{
+      display:none;
+      border:0;
+      width:46px;
+      height:46px;
+      border-radius:18px;
+      background:linear-gradient(135deg,var(--pink),var(--pink2));
+      color:#fff;
+      font-size:24px;
+      font-weight:1000;
+      box-shadow:0 12px 22px rgba(255,47,131,.22);
+      cursor:pointer;
+      flex-shrink:0;
+    }
+    .drawer-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(30,20,30,.32);
+      backdrop-filter:blur(5px);
+      display:none;
+      z-index:90;
+    }
+    .drawer-backdrop.show{display:block}
+    .drawer{
+      position:fixed;
+      top:0;
+      right:-310px;
+      width:290px;
+      max-width:86vw;
+      height:100vh;
+      background:#fff;
+      border-left:1px solid var(--line);
+      box-shadow:-16px 0 40px rgba(255,47,131,.22);
+      z-index:100;
+      padding:18px 14px;
+      transition:.25s ease;
+      overflow:auto;
+    }
+    .drawer.show{right:0}
+    .drawer-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 6px 14px;
+    }
+    .drawer-head h3{margin:0;color:var(--pink);font-size:21px}
+    .close-drawer{
+      border:0;
+      background:var(--pink3);
+      color:var(--pink);
+      width:42px;
+      height:42px;
+      border-radius:16px;
+      font-size:24px;
+      font-weight:1000;
+      cursor:pointer;
+    }
     .toast{
       position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);
       background:#302936;color:#fff;padding:13px 18px;border-radius:999px;
@@ -189,19 +246,8 @@
       .grid2{grid-template-columns:1fr}
       .form,.form.two{grid-template-columns:1fr}
       .panel{padding:16px;border-radius:26px}
-      .bottom-nav{
-        display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
-        position:fixed;left:10px;right:10px;bottom:10px;
-        background:rgba(255,255,255,.92);backdrop-filter:blur(18px);
-        border:1px solid var(--line);border-radius:28px;padding:8px;
-        box-shadow:0 16px 36px rgba(255,47,131,.22);z-index:40;
-      }
-      .bn{
-        border:0;background:transparent;border-radius:20px;padding:8px 2px;
-        font-size:11px;font-weight:1000;color:var(--muted);cursor:pointer;
-      }
-      .bn span{display:block;font-size:20px;margin-bottom:2px}
-      .bn.active{background:var(--pink3);color:var(--pink)}
+      .mobile-menu-btn{display:grid;place-items:center}
+      .main{padding-bottom:28px}
     }
     @media(max-width:420px){
       .stats{grid-template-columns:1fr 1fr}
@@ -210,6 +256,57 @@
       .item{align-items:flex-start;flex-direction:column}
       .amount{font-size:16px}
     }
+  
+    /* ===== FIX MOBILE MENU: no bottom menu, full slide drawer ===== */
+    .bottom-nav{display:none!important}
+    @media(max-width:920px){
+      .bottom-nav{display:none!important}
+      .hero{
+        position:relative;
+      }
+      .hero > div:last-child{
+        width:100%;
+        justify-content:space-between;
+      }
+      .mobile-menu-btn{
+        display:flex!important;
+        align-items:center;
+        justify-content:center;
+        width:auto!important;
+        min-width:120px;
+        height:46px;
+        padding:0 16px;
+        border-radius:999px;
+        font-size:16px;
+        gap:6px;
+      }
+      .mobile-menu-btn::after{
+        content:" เมนู";
+        font-size:15px;
+      }
+      .drawer{
+        left:auto!important;
+        right:-330px!important;
+        width:310px!important;
+        max-width:88vw!important;
+      }
+      .drawer.show{
+        right:0!important;
+      }
+      .drawer .menu{
+        box-shadow:none;
+        border:0;
+        padding:0;
+      }
+      .drawer .nav{
+        display:flex!important;
+        font-size:16px;
+        padding:15px 14px;
+        margin-bottom:7px;
+      }
+      .main{padding-bottom:24px!important}
+    }
+
   </style>
 </head>
 <body>
@@ -229,7 +326,10 @@
         <h2 id="pageTitle">Dashboard ภาพรวม</h2>
         <p id="pageSub">ดูเงินเข้า เงินออก หนี้ ออม และทองออมในที่เดียว</p>
       </div>
-      <div class="date-pill" id="todayText"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="date-pill" id="todayText"></div>
+        <button class="mobile-menu-btn" onclick="openDrawer()">☰</button>
+      </div>
     </div>
 
     <section id="dashboard" class="section active">
@@ -387,7 +487,14 @@
   </main>
 </div>
 
-<nav class="bottom-nav" id="bottomMenu"></nav>
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>เมนูทั้งหมด</h3>
+    <button class="close-drawer" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="menu" id="drawerMenu"></div>
+</aside>
 
 <div class="toast" id="toast">บันทึกแล้วค่ะ</div>
 
@@ -484,7 +591,6 @@ const menus = [
   ['report','📊','รายงาน','รายงานการเงิน','สรุปรายเดือน รายปี และพิมพ์รายงาน'],
   ['setting','⚙️','ตั้งค่า','ตั้งค่า','ตั้งชื่อแอปและดู SQL สำหรับ Supabase']
 ];
-const bottomIds = ['dashboard','income','expense','debt','report'];
 const today = new Date().toISOString().slice(0,10);
 let data = JSON.parse(localStorage.getItem('pinkPocketData') || '{}');
 let setting = JSON.parse(localStorage.getItem('pinkPocketSetting') || '{}');
@@ -505,7 +611,7 @@ function init(){
   brandName.innerText = setting.name || 'Pink Pocket';
 
   sideMenu.innerHTML = menus.map(m => `<button class="nav ${m[0]==='dashboard'?'active':''}" onclick="go('${m[0]}')">${m[1]} ${m[2]}</button>`).join('');
-  bottomMenu.innerHTML = menus.filter(m => bottomIds.includes(m[0])).map(m => `<button class="bn ${m[0]==='dashboard'?'active':''}" onclick="go('${m[0]}')"><span>${m[1]}</span>${m[2]}</button>`).join('');
+  drawerMenu.innerHTML = menus.map(m => `<button class="nav ${m[0]==='dashboard'?'active':''}" onclick="go('${m[0]}'); closeDrawer();">${m[1]} ${m[2]}</button>`).join('');
 
   const y = new Date().getFullYear();
   reportYear.innerHTML = Array.from({length:7},(_,i)=>y-3+i).map(v=>`<option ${v===y?'selected':''}>${v}</option>`).join('');
@@ -523,13 +629,21 @@ function toast(msg='บันทึกแล้วค่ะ'){
 function go(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav,.bn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.nav').forEach((b,i)=>{ if(menus[i][0]===id) b.classList.add('active') });
-  document.querySelectorAll('.bn').forEach((b,i)=>{ if(bottomIds[i]===id) b.classList.add('active') });
+  document.querySelectorAll('.nav').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#sideMenu .nav').forEach((b,i)=>{ if(menus[i][0]===id) b.classList.add('active') });
+  document.querySelectorAll('#drawerMenu .nav').forEach((b,i)=>{ if(menus[i][0]===id) b.classList.add('active') });
   const m = menus.find(x=>x[0]===id);
   pageTitle.innerText = m[3]; pageSub.innerText = m[4];
   render();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+function openDrawer(){
+  drawer.classList.add('show');
+  drawerBackdrop.classList.add('show');
+}
+function closeDrawer(){
+  drawer.classList.remove('show');
+  drawerBackdrop.classList.remove('show');
 }
 function addRecord(type){
   const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
