@@ -4,7 +4,64 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sweet Pink Money Book</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+/* =======================================================
+   🚀 ZONE 1: SUPABASE + CORE CONFIG (NEW SYSTEM)
+   ======================================================= */
+// 🔑 1. ตั้งค่า Supabase (ใช้ค่าคงที่จากระบบของคุณ)
+const SUPABASE_URL = "https://hhsbfryurnwgukatesdr.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_nNAtElEGdX80dSoVnGyp0Q_pcsQB5-v";
+
+window.supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
+
+// 🔥 2. App Config
+const APP_CONFIG = {
+    env: 'production',
+    version: '3.0.0',
+    database: 'supabase'
+};
+
+function showSuccess(message = 'บันทึกสำเร็จ ') {
+  Swal.fire({
+    icon: 'success',
+    title: message,
+    showConfirmButton: false,
+    timer: 1500,
+    background: '#fff',
+    color: '#ff5fa2'
+  });
+
+  if (navigator.vibrate) {
+    navigator.vibrate(100);
+  }
+}
+
+function showError(message) {
+  Swal.fire({
+    icon: 'error',
+    title: 'เกิดข้อผิดพลาด',
+    text: message,
+    confirmButtonColor: '#ff5fa2'
+  });
+}
+</script>
+
 <style>
 :root{
   --pink:#ff5fa2;
@@ -205,39 +262,69 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
 .quick span{display:block;font-size:30px;margin-bottom:6px}
 .bottom-nav{
   position:fixed;
-  left:50%;bottom:14px;transform:translateX(-50%);
+  left:50%;
+  bottom:14px;
+  transform:translateX(-50%);
   width:min(790px,calc(100% - 24px));
-  background:rgba(255,255,255,.94);
+  background:rgba(255,255,255,.96);
   border:1px solid var(--line);
-  border-radius:32px;
-  box-shadow:0 18px 40px rgba(255,95,162,.22);
+  border-radius:34px;
+  box-shadow:0 18px 40px rgba(255,95,162,.18);
   display:grid;
   grid-template-columns:1fr 1fr 82px 1fr 1fr;
-  padding:9px;
+  padding:10px 8px;
   gap:4px;
   backdrop-filter:blur(14px);
   z-index:30;
 }
+
 .nav{
   border:0;
   background:transparent;
-  color:var(--muted);
-  font-weight:1000;
-  border-radius:22px;
+  color:#b6a8af;
+  font-weight:900;
+  border-radius:24px;
   padding:8px 2px;
   font-size:13px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
 }
-.nav span{display:block;font-size:25px;margin-bottom:2px}
-.nav.active{color:var(--pink);background:var(--pink3)}
+
+.nav i{
+  font-size:26px;
+  color:#b6a8af;
+}
+
+.nav span{
+  display:block;
+}
+
+.nav.active{
+  color:var(--pink);
+  background:var(--pink3);
+}
+
+.nav.active i{
+  color:var(--pink);
+}
+
 .plus{
   border:0;
-  width:76px;height:64px;
+  width:76px;
+  height:64px;
   border-radius:999px;
   background:linear-gradient(135deg,var(--pink),var(--pink2));
   color:#fff;
-  font-size:38px;
-  transform:translateY(-10px);
+  font-size:28px;
+  transform:translateY(-12px);
   box-shadow:0 12px 24px rgba(255,95,162,.3);
+}
+
+.plus i{
+  color:#fff;
 }
 .top-menu{display:flex;gap:10px;overflow:auto;margin-bottom:12px;scrollbar-width:none}
 .top-menu::-webkit-scrollbar{display:none}
@@ -262,30 +349,131 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
   .bottom-nav{grid-template-columns:1fr 1fr 78px 1fr 1fr}
   .plus{width:72px;height:60px}
 }
+.nav i{
+  display:block;
+  font-size:26px;
+  line-height:1;
+  margin-bottom:4px;
+  color:#b6a8af;
+}
+
+.nav.active i{
+  color:var(--pink);
+}
+
+.plus i{
+  font-size:28px;
+  color:#fff;
+}
+.stat .icon i{
+  font-size:24px;
+  color:var(--pink);
+}
+
+.stat.in .icon i{
+  color:var(--pink);
+}
+
+.stat.out .icon i{
+  color:var(--pink);
+}
+
+.stat.gold .icon i{
+  color:var(--gold);
+}
+.title-icon{
+  color:var(--pink);
+  margin-right:8px;
+  font-size:20px;
+}
+
+.menu-icon{
+  display:block;
+  font-size:30px;
+  margin-bottom:8px;
+  color:var(--pink);
+}
+
+.cat-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.quick{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.quick-icon{
+  font-size:34px;
+  color:var(--pink);
+  margin-bottom:8px;
+}
+
+.quick:hover .quick-icon{
+  transform:scale(1.08);
+  transition:.2s;
+}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <h1 id="pageTitle">💗 สมุดเงินหวานๆ</h1>
+    <h1 id="pageTitle"><span class="pink-icon">♡</span> สมุดเงินหวานๆ</h1>
     <p id="pageSub">บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และเก็บใบเสร็จไว้ในที่เดียว</p>
   </div>
 
-  <section id="dashboard" class="section active">
-    <div class="stats">
-      <div class="stat in"><div class="icon">💰</div><small>รายรับรวม</small><b id="dashIncome">฿0</b></div>
-      <div class="stat out"><div class="icon">🧾</div><small>รายจ่ายรวม</small><b id="dashExpense">฿0</b></div>
-      <div class="stat"><div class="icon">👛</div><small>เงินคงเหลือ</small><b id="dashBalance">฿0</b></div>
-      <div class="stat out"><div class="icon">🏠</div><small>ยอดผ่อนคงเหลือ</small><b id="dashDebt">฿0</b></div>
-      <div class="stat in"><div class="icon">🏦</div><small>เงินออม</small><b id="dashSaving">฿0</b></div>
-      <div class="stat gold"><div class="icon">🥇</div><small>ทองออม</small><b id="dashGold">฿0</b></div>
+ <section id="dashboard" class="section active">
+  <div class="stats">
+
+    <div class="stat in">
+      <div class="icon"><i class="fa-solid fa-wallet"></i></div>
+      <small>รายรับรวม</small>
+      <b id="dashIncome">฿0</b>
     </div>
+
+    <div class="stat out">
+      <div class="icon"><i class="fa-solid fa-receipt"></i></div>
+      <small>รายจ่ายรวม</small>
+      <b id="dashExpense">฿0</b>
+    </div>
+
+    <div class="stat">
+      <div class="icon"><i class="fa-solid fa-coins"></i></div>
+      <small>เงินคงเหลือ</small>
+      <b id="dashBalance">฿0</b>
+    </div>
+
+    <div class="stat out">
+      <div class="icon"><i class="fa-solid fa-house"></i></div>
+      <small>ยอดผ่อนคงเหลือ</small>
+      <b id="dashDebt">฿0</b>
+    </div>
+
+    <div class="stat in">
+      <div class="icon"><i class="fa-solid fa-piggy-bank"></i></div>
+      <small>เงินออม</small>
+      <b id="dashSaving">฿0</b>
+    </div>
+
+    <div class="stat gold">
+      <div class="icon"><i class="fa-solid fa-medal"></i></div>
+      <small>ทองออม</small>
+      <b id="dashGold">฿0</b>
+    </div>
+
+  </div>
+
     <div class="card">
-      <div class="card-title"><h3>📊 สรุปภาพรวม</h3></div>
+      <div class="card-title"><h3><span class="pink-icon">◌</span> สรุปภาพรวม</h3></div>
       <canvas id="mainChart" height="150"></canvas>
     </div>
+
     <div class="card">
-      <div class="card-title"><h3>🧁 รายการล่าสุด</h3><button class="btn white" onclick="go('receipts')">ดูใบเสร็จ</button></div>
+      <div class="card-title"><h3><span class="pink-icon">✿</span> รายการล่าสุด</h3><button class="btn white" onclick="go('receipts')">ดูใบเสร็จ</button></div>
       <div class="list" id="latestList"></div>
     </div>
   </section>
@@ -296,92 +484,177 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
       <button class="top-pill" onclick="openForm('category')">+ หมวดรายรับ</button>
       <button class="top-pill" onclick="exportCSV('income')">Export</button>
     </div>
-    <div class="card">
-      <div class="card-title"><h3>💰 บันทึกรายรับ / ยอดที่หามาได้</h3><button class="btn" onclick="openForm('income')">+ เพิ่ม</button></div>
-      <div class="list" id="incomeList"></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><h3>🌈 แยกยอดตามหมวดรายรับ</h3></div>
-      <div class="category-grid" id="incomeCategorySummary"></div>
-    </div>
-  </section>
 
-  <section id="expense" class="section">
-    <div class="card">
-      <div class="card-title"><h3>🧾 บันทึกรายจ่าย</h3><button class="btn" onclick="openForm('expense')">+ เพิ่ม</button></div>
-      <div class="list" id="expenseList"></div>
-    </div>
-  </section>
 
-  <section id="homepay" class="section">
-    <div class="card">
-      <div class="card-title"><h3>🏠 ผ่อนบ้าน / หนี้ผ่อน</h3><button class="btn" onclick="openForm('loan')">+ เพิ่มสัญญา</button></div>
-      <div class="list" id="loanList"></div>
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-wallet title-icon"></i> แยกยอดตามหมวดรายรับ</h3>
+      <button class="btn" onclick="openForm('income')">+ เพิ่ม</button>
     </div>
-  </section>
+    <div class="category-grid" id="incomeCategorySummary"></div>
+  </div>
+</section>
 
-  <section id="saving" class="section">
-    <div class="card">
-      <div class="card-title"><h3>🏦 เงินออม</h3><button class="btn green" onclick="openForm('saving')">+ เพิ่ม</button></div>
-      <div class="list" id="savingList"></div>
+<section id="expense" class="section">
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-receipt title-icon"></i> แยกยอดตามหมวดรายจ่าย</h3>
+      <button class="btn" onclick="openForm('expense')">+ เพิ่ม</button>
     </div>
-  </section>
+    <div class="category-grid" id="expenseCategorySummary"></div>
+  </div>
+</section>
 
-  <section id="gold" class="section">
-    <div class="card">
-      <div class="card-title"><h3>🥇 ทองออม</h3><button class="btn gold" onclick="openForm('gold')">+ เพิ่ม</button></div>
-      <div class="list" id="goldList"></div>
+<section id="homepay" class="section">
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-house title-icon"></i> ผ่อนบ้าน / หนี้ผ่อน</h3>
+      <button class="btn" onclick="openForm('loan')">+ เพิ่มสัญญา</button>
     </div>
-  </section>
+    <div class="list" id="loanList"></div>
+  </div>
+</section>
 
-  <section id="receipts" class="section">
-    <div class="card">
-      <div class="card-title"><h3>🧾 คลังใบเสร็จ</h3><button class="btn" onclick="openForm('receipt')">+ เก็บใบเสร็จ</button></div>
-      <div class="list" id="receiptList"></div>
+<section id="saving" class="section">
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-piggy-bank title-icon"></i> เงินออม</h3>
+      <button class="btn green" onclick="openForm('saving')">+ เพิ่ม</button>
     </div>
-  </section>
+    <div class="list" id="savingList"></div>
+  </div>
+</section>
 
-  <section id="more" class="section">
-    <div class="card">
-      <div class="card-title"><h3>🍓 เมนูทั้งหมด</h3></div>
-      <div class="category-grid">
-        <button class="cat-card" onclick="go('income')"><span>💰</span>รายรับ</button>
-        <button class="cat-card" onclick="go('expense')"><span>🧾</span>รายจ่าย</button>
-        <button class="cat-card" onclick="go('homepay')"><span>🏠</span>ผ่อนบ้าน</button>
-        <button class="cat-card" onclick="go('saving')"><span>🏦</span>เงินออม</button>
-        <button class="cat-card" onclick="go('gold')"><span>🥇</span>ทองออม</button>
-        <button class="cat-card" onclick="go('receipts')"><span>📷</span>ใบเสร็จ</button>
-      </div>
+<section id="gold" class="section">
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-medal title-icon"></i> ทองออม</h3>
+      <button class="btn gold" onclick="openForm('gold')">+ เพิ่ม</button>
     </div>
-    <div class="card">
-      <div class="card-title"><h3>⚙️ ตั้งค่า/ข้อมูล</h3><button class="btn white" onclick="clearAll()">ล้างข้อมูล</button></div>
-      <p style="color:var(--muted);font-weight:800;line-height:1.7">
-        ข้อมูลทั้งหมดเก็บในเครื่องนี้ด้วย localStorage ก่อน ใช้งานได้ทันที ไม่ต้องต่อฐานข้อมูล
-        ภายหลังสามารถเชื่อม Supabase เพื่อใช้งานหลายเครื่องได้ค่ะ
-      </p>
-    </div>
-  </section>
-</div>
+    <div class="list" id="goldList"></div>
+  </div>
+</section>
 
+<section id="receipts" class="section">
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-camera title-icon"></i> คลังใบเสร็จ</h3>
+      <button class="btn" onclick="openForm('receipt')">+ เก็บใบเสร็จ</button>
+    </div>
+    <div class="list" id="receiptList"></div>
+  </div>
+</section>
+
+<section id="more" class="section">
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-border-all title-icon"></i> เมนูทั้งหมด</h3>
+    </div>
+
+    <div class="category-grid">
+
+      <button class="cat-card" onclick="go('income')">
+        <i class="fa-solid fa-wallet menu-icon"></i>
+        รายรับ
+      </button>
+
+      <button class="cat-card" onclick="go('expense')">
+        <i class="fa-solid fa-receipt menu-icon"></i>
+        รายจ่าย
+      </button>
+
+      <button class="cat-card" onclick="go('homepay')">
+        <i class="fa-solid fa-house menu-icon"></i>
+        ผ่อนบ้าน
+      </button>
+
+      <button class="cat-card" onclick="go('saving')">
+        <i class="fa-solid fa-piggy-bank menu-icon"></i>
+        เงินออม
+      </button>
+
+      <button class="cat-card" onclick="go('gold')">
+        <i class="fa-solid fa-medal menu-icon"></i>
+        ทองออม
+      </button>
+
+      <button class="cat-card" onclick="go('receipts')">
+        <i class="fa-solid fa-camera menu-icon"></i>
+        ใบเสร็จ
+      </button>
+
+    </div>
+  </div>
+</section>
+  </div>
 <nav class="bottom-nav">
-  <button class="nav active" onclick="go('dashboard')"><span>🏡</span>หน้าหลัก</button>
-  <button class="nav" onclick="go('income')"><span>💰</span>รายรับ</button>
-  <button class="plus" onclick="openQuick()">+</button>
-  <button class="nav" onclick="go('homepay')"><span>🏠</span>ผ่อนบ้าน</button>
-  <button class="nav" onclick="go('more')"><span>🍓</span>เมนู</button>
+  <button class="nav active" onclick="go('dashboard')">
+    <i class="fa-solid fa-house"></i>
+    <span>หน้าหลัก</span>
+  </button>
+
+  <button class="nav" onclick="go('income')">
+    <i class="fa-solid fa-wallet"></i>
+    <span>รายรับ</span>
+  </button>
+
+  <button class="plus" onclick="openQuick()">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+
+  <button class="nav" onclick="go('expense')">
+    <i class="fa-solid fa-receipt"></i>
+    <span>รายจ่าย</span>
+  </button>
+
+ <button class="nav" onclick="go('more')">
+  <i class="fa-solid fa-border-all"></i>
+  <span>เมนู</span>
+</button>
 </nav>
 
 <div class="modal" id="quickModal" onclick="if(event.target.id==='quickModal')closeQuick()">
   <div class="sheet">
-    <div class="sheet-head"><h3>เพิ่มรายการ</h3><button class="close" onclick="closeQuick()">×</button></div>
-    <div class="quick-grid">
-      <button class="quick" onclick="openForm('income')"><span>💰</span>รายรับ</button>
-      <button class="quick" onclick="openForm('expense')"><span>🧾</span>รายจ่าย</button>
-      <button class="quick" onclick="openForm('loan')"><span>🏠</span>ผ่อนบ้าน/หนี้</button>
-      <button class="quick" onclick="openForm('saving')"><span>🏦</span>เงินออม</button>
-      <button class="quick" onclick="openForm('gold')"><span>🥇</span>ทองออม</button>
-      <button class="quick" onclick="openForm('receipt')"><span>📷</span>ใบเสร็จ</button>
+
+    <div class="sheet-head">
+      <h3>เพิ่มรายการ</h3>
+      <button class="close" onclick="closeQuick()">×</button>
     </div>
+
+    <div class="quick-grid">
+
+      <button class="quick" onclick="openForm('income')">
+        <i class="fa-solid fa-wallet quick-icon"></i>
+        รายรับ
+      </button>
+
+      <button class="quick" onclick="openForm('expense')">
+        <i class="fa-solid fa-receipt quick-icon"></i>
+        รายจ่าย
+      </button>
+
+      <button class="quick" onclick="openForm('loan')">
+        <i class="fa-solid fa-house quick-icon"></i>
+        ผ่อนบ้าน/หนี้
+      </button>
+
+      <button class="quick" onclick="openForm('saving')">
+        <i class="fa-solid fa-piggy-bank quick-icon"></i>
+        เงินออม
+      </button>
+
+      <button class="quick" onclick="openForm('gold')">
+        <i class="fa-solid fa-medal quick-icon"></i>
+        ทองออม
+      </button>
+
+      <button class="quick" onclick="openForm('receipt')">
+        <i class="fa-solid fa-camera quick-icon"></i>
+        ใบเสร็จ
+      </button>
+
+    </div>
+
   </div>
 </div>
 
@@ -393,20 +666,135 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
 </div>
 
 <script>
+async function loadDataFromSupabase(){
+  const { data: income } = await supabaseClient
+    .from('money_income')
+    .select('*')
+    .order('income_date', { ascending:false });
+
+  const { data: expense } = await supabaseClient
+    .from('money_expense')
+    .select('*')
+    .order('expense_date', { ascending:false });
+
+  const { data: loans } = await supabaseClient
+    .from('money_loans')
+    .select('*')
+    .order('created_at', { ascending:false });
+
+  const { data: payments } = await supabaseClient
+    .from('money_loan_payments')
+    .select('*')
+    .order('payment_date', { ascending:false });
+
+  const { data: savings } = await supabaseClient
+    .from('money_savings')
+    .select('*')
+    .order('created_at', { ascending:false });
+
+  const { data: gold } = await supabaseClient
+    .from('money_gold')
+    .select('*')
+    .order('gold_date', { ascending:false });
+
+const { data: receipts } = await supabaseClient
+  .from('money_receipts')
+  .select('*')
+  .order('receipt_date', { ascending:false });
+
+db.receipts = (receipts || []).map(x => ({
+  id:x.id,
+  date:x.receipt_date,
+  title:x.title,
+  amount:x.amount,
+  type:x.type,
+  note:x.note,
+  image:x.image_url
+}));
+
+  db.income = (income || []).map(x => ({
+    id:x.id,
+    date:x.income_date,
+    title:x.title,
+    category:x.category,
+    amount:x.amount,
+    note:x.note,
+    receipt:x.receipt_url
+  }));
+
+  db.expense = (expense || []).map(x => ({
+    id:x.id,
+    date:x.expense_date,
+    title:x.title,
+    category:x.category,
+    amount:x.amount,
+    note:x.note,
+    receipt:x.receipt_url
+  }));
+
+  db.loans = (loans || []).map(x => ({
+    id:x.id,
+    name:x.name,
+    total:x.total,
+    principal:x.principal,
+    interestRate:x.interest_rate,
+    years:x.years,
+    totalInterest:x.total_interest,
+    monthly:x.monthly,
+    due:x.due_day,
+    note:x.note
+  }));
+
+  db.loanPayments = (payments || []).map(x => ({
+  id:x.id,
+  loan_id:x.loan_id,
+  date:x.payment_date,
+  amount:x.amount,
+  principal_paid:x.principal_paid,
+  interest_paid:x.interest_paid,
+  balance_after:x.balance_after,
+  note:x.note,
+  receipt:x.receipt_url
+}));
+
+  db.saving = (savings || []).map(x => ({
+    id:x.id,
+    name:x.name,
+    target:x.target,
+    amount:x.amount,
+    note:x.note
+  }));
+
+  db.gold = (gold || []).map(x => ({
+    id:x.id,
+    date:x.gold_date,
+    amount:x.amount,
+    weight:x.weight,
+    gold_price:x.gold_price,
+    shop:x.shop,
+    receipt:x.receipt_url
+  }));
+
+  render();
+}
 const today = new Date().toISOString().slice(0,10);
 let chart;
 let db = JSON.parse(localStorage.getItem('sweetPinkMoneyDB') || '{}');
-['income','expense','loans','loanPayments','saving','gold','receipts','categories'].forEach(k => db[k] ||= []);
+
+['income','expense','loans','loanPayments','saving','gold','receipts','categories']
+  .forEach(k => db[k] ||= []);
+
 if(!db.categories.length){
   db.categories = [
-    {id:'salary',type:'income',name:'เงินเดือน',icon:'💼'},
-    {id:'sell',type:'income',name:'ขายของ',icon:'🛍️'},
-    {id:'bonus',type:'income',name:'โบนัส',icon:'🎁'},
-    {id:'food',type:'expense',name:'อาหาร',icon:'🍜'},
-    {id:'home',type:'expense',name:'บ้าน',icon:'🏠'},
-    {id:'child',type:'expense',name:'ลูก',icon:'🧸'},
-    {id:'car',type:'expense',name:'รถ',icon:'🚗'},
-    {id:'other',type:'expense',name:'อื่นๆ',icon:'🌸'}
+    {id:'salary',type:'income',name:'เงินเดือน',icon:'fa-solid fa-briefcase'},
+    {id:'sell',type:'income',name:'ขายของ',icon:'fa-solid fa-store'},
+    {id:'bonus',type:'income',name:'โบนัส',icon:'fa-solid fa-gift'},
+
+    {id:'food',type:'expense',name:'อาหาร',icon:'fa-solid fa-utensils'},
+    {id:'home',type:'expense',name:'บ้าน',icon:'fa-solid fa-house'},
+    {id:'child',type:'expense',name:'ลูก',icon:'fa-solid fa-child-reaching'},
+    {id:'car',type:'expense',name:'รถ',icon:'fa-solid fa-car'},
+    {id:'other',type:'expense',name:'อื่นๆ',icon:'fa-solid fa-heart'}
   ];
 }
 function save(){ localStorage.setItem('sweetPinkMoneyDB', JSON.stringify(db)); }
@@ -418,27 +806,71 @@ function money(n){ return '฿' + Number(n||0).toLocaleString('th-TH',{maximumFr
 function sum(arr,k='amount'){ return arr.reduce((s,x)=>s+Number(x[k]||0),0); }
 function pageName(id){
   return {
-    dashboard:['💗 สมุดเงินหวานๆ','บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และใบเสร็จ'],
-    income:['💰 รายรับ / ยอดที่หามาได้','แยกยอดตามหมวด เช่น เงินเดือน ขายของ โบนัส'],
-    expense:['🧾 รายจ่าย','บันทึกค่าใช้จ่ายพร้อมหมวดหมู่และใบเสร็จ'],
-    homepay:['🏠 ผ่อนบ้าน / หนี้ผ่อน','สร้างรายการผ่อน แล้วบันทึกการจ่ายแต่ละเดือนข้างใน'],
-    saving:['🏦 เงินออม','ตั้งเป้าหมายเงินออมและเพิ่มยอดได้เรื่อยๆ'],
-    gold:['🥇 ทองออม','บันทึกยอดออมทอง น้ำหนักทอง และราคาทอง'],
-    receipts:['📷 คลังใบเสร็จ','เก็บรูปใบเสร็จและรายละเอียดการจ่าย'],
-    more:['🍓 เมนูทั้งหมด','รวมทุกเมนูและการตั้งค่า']
-  }[id] || ['💗 สมุดเงิน',''];
+    dashboard:[
+      '<i class="fa-solid fa-heart" style="color:#ff5fa2"></i> สมุดเงินหวานๆ',
+      'บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และใบเสร็จ'
+    ],
+
+    income:[
+      '<i class="fa-solid fa-wallet" style="color:#ff5fa2"></i> รายรับ',
+      'แยกยอดตามหมวด เช่น เงินเดือน ขายของ โบนัส'
+    ],
+
+    expense:[
+      '<i class="fa-solid fa-receipt" style="color:#ff5fa2"></i> รายจ่าย',
+      'บันทึกค่าใช้จ่ายพร้อมหมวดหมู่และใบเสร็จ'
+    ],
+
+    homepay:[
+      '<i class="fa-solid fa-house" style="color:#ff5fa2"></i> ผ่อนบ้าน / หนี้ผ่อน',
+      'สร้างรายการผ่อน แล้วบันทึกการจ่ายแต่ละเดือนข้างใน'
+    ],
+
+    saving:[
+      '<i class="fa-solid fa-piggy-bank" style="color:#ff5fa2"></i> เงินออม',
+      'ตั้งเป้าหมายเงินออมและเพิ่มยอดได้เรื่อยๆ'
+    ],
+
+    gold:[
+      '<i class="fa-solid fa-medal" style="color:#ff5fa2"></i> ทองออม',
+      'บันทึกยอดออมทอง น้ำหนักทอง และราคาทอง'
+    ],
+
+    receipts:[
+      '<i class="fa-solid fa-camera" style="color:#ff5fa2"></i> คลังใบเสร็จ',
+      'เก็บรูปใบเสร็จและรายละเอียดการจ่าย'
+    ],
+
+    more:[
+      '<i class="fa-solid fa-border-all" style="color:#ff5fa2"></i> เมนูทั้งหมด',
+      'รวมทุกเมนูและการตั้งค่า'
+    ]
+  }[id] || ['สมุดเงินหวานๆ',''];
 }
 function go(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  el(id).classList.add('active');
-  document.querySelectorAll('.nav').forEach(b=>b.classList.remove('active'));
-  if(id==='dashboard') document.querySelectorAll('.nav')[0].classList.add('active');
-  if(id==='income') document.querySelectorAll('.nav')[1].classList.add('active');
-  if(id==='homepay') document.querySelectorAll('.nav')[2].classList.add('active');
-  if(id==='more') document.querySelectorAll('.nav')[3].classList.add('active');
-  const [t,sub]=pageName(id); pageTitle.textContent=t; pageSub.textContent=sub;
-  render(); scrollTo({top:0,behavior:'smooth'});
+
+  const page = el(id);
+  if(!page) return showError('ไม่พบหน้า: ' + id);
+
+  page.classList.add('active');
+
+  const navs = document.querySelectorAll('.nav');
+  navs.forEach(b=>b.classList.remove('active'));
+
+  if(id==='dashboard') navs[0]?.classList.add('active');
+  if(id==='income') navs[1]?.classList.add('active');
+  if(id==='expense') navs[2]?.classList.add('active');
+  if(id==='more') navs[3]?.classList.add('active');
+
+  const [t,sub]=pageName(id);
+  pageTitle.innerHTML=t;
+  pageSub.textContent=sub;
+
+  render();
+  scrollTo({top:0,behavior:'smooth'});
 }
+
 function openQuick(){ quickModal.classList.add('show'); }
 function closeQuick(){ quickModal.classList.remove('show'); }
 function closeForm(){ formModal.classList.remove('show'); }
@@ -451,7 +883,6 @@ function openForm(type, refId=''){
     h = `<div class="form">
       <input type="date" id="f_date" value="${today}">
       <select id="f_category">${db.categories.filter(c=>c.type==='income').map(c=>`<option value="${c.name}">${c.icon} ${c.name}</option>`).join('')}</select>
-      <input id="f_title" placeholder="รายการ เช่น เงินเดือน / ขายของ">
       <input type="number" id="f_amount" placeholder="จำนวนเงิน">
       <textarea id="f_note" placeholder="หมายเหตุ"></textarea>
       <input type="file" id="f_receipt" accept="image/*">
@@ -462,36 +893,65 @@ function openForm(type, refId=''){
     h = `<div class="form">
       <input type="date" id="f_date" value="${today}">
       <select id="f_category">${db.categories.filter(c=>c.type==='expense').map(c=>`<option value="${c.name}">${c.icon} ${c.name}</option>`).join('')}</select>
-      <input id="f_title" placeholder="รายการ เช่น ค่าอาหาร / ค่าไฟ">
+      
       <input type="number" id="f_amount" placeholder="จำนวนเงิน">
       <textarea id="f_note" placeholder="หมายเหตุ"></textarea>
       <input type="file" id="f_receipt" accept="image/*">
       <button class="btn red" onclick="addExpense()">บันทึกรายจ่าย</button>
     </div>`;
   }
-  if(type==='loan'){
-    h = `<div class="form">
-      <input id="f_name" placeholder="ชื่อรายการ เช่น ผ่อนบ้าน / ผ่อนรถ">
-      <input type="number" id="f_total" placeholder="ยอดหนี้ทั้งหมด">
-      <input type="number" id="f_down" placeholder="ผ่อนชุดแรก / เงินดาวน์">
-      <input type="number" id="f_monthly" placeholder="ค่างวดต่อเดือน">
-      <input type="number" id="f_due" placeholder="จ่ายทุกวันที่ เช่น 5">
-      <textarea id="f_note" placeholder="รายละเอียด เช่น ธนาคาร เลขสัญญา"></textarea>
-      <button class="btn" onclick="addLoan()">บันทึกสัญญาผ่อน</button>
-    </div>`;
-  }
-  if(type==='loanPay'){
-    const loan = db.loans.find(x=>x.id===refId);
-    h = `<div class="form">
-      <input type="hidden" id="f_loan_id" value="${refId}">
-      <input value="${loan ? loan.name : ''}" readonly>
-      <input type="date" id="f_date" value="${today}">
-      <input type="number" id="f_amount" placeholder="ยอดที่จ่ายเดือนนี้" value="${loan ? loan.monthly : ''}">
-      <textarea id="f_note" placeholder="หมายเหตุ เช่น งวดที่ 1"></textarea>
-      <input type="file" id="f_receipt" accept="image/*">
-      <button class="btn" onclick="addLoanPayment()">บันทึกจ่ายค่างวด</button>
-    </div>`;
-  }
+if(type==='loan'){
+  h = `<div class="form">
+    <input id="f_name" placeholder="ชื่อรายการ เช่น คอนโด / บ้าน / รถ">
+    <input id="f_creditor" placeholder="เจ้าหนี้ เช่น ไทยพาณิชย์">
+    <input id="f_loan_type" placeholder="ประเภทหนี้ เช่น ที่อยู่อาศัย / คอนโด">
+
+    <input type="number" id="f_total" placeholder="เงินต้นทั้งหมด / วงเงินที่ได้รับอนุมัติ">
+    <input type="number" id="f_down" placeholder="ผ่อนชำระไปแล้ว">
+    <input type="number" id="f_total_installments" placeholder="จำนวนงวดทั้งหมด เช่น 360">
+    <input type="number" id="f_paid_installments" placeholder="จำนวนงวดที่จ่ายไปแล้ว เช่น 11">
+
+    <input type="number" id="f_interest" placeholder="อัตราดอกเบี้ยต่อปี (%) เช่น 3.6" oninput="calcLoanPreview()">
+    <input type="number" id="f_monthly" placeholder="ค่างวดต่อเดือน">
+    <input type="date" id="f_start_date" value="${today}">
+    <input type="date" id="f_expected_end_date">
+    <input type="number" id="f_due" placeholder="วันครบกำหนดชำระ เช่น 5">
+
+    <select id="f_calc_method">
+      <option value="ลดต้นลดดอก">ลดต้นลดดอก</option>
+      <option value="คงที่">คงที่</option>
+    </select>
+
+    <div class="card" style="box-shadow:none;margin:0;background:#fff8fc">
+      <b>สรุปคำนวณ</b>
+      <p id="loanPreview" style="color:var(--muted);font-weight:800">
+        กรอกเงินต้น ดอกเบี้ย และค่างวด เพื่อคำนวณ
+      </p>
+    </div>
+
+    <textarea id="f_note" placeholder="รายละเอียด เช่น เลขบัญชี / เลขสัญญา"></textarea>
+    <button class="btn" onclick="addLoan()">บันทึกสัญญาผ่อน</button>
+  </div>`;
+}
+
+ if(type==='loanPay'){
+  const loan = db.loans.find(x=>x.id===refId);
+  h = `<div class="form">
+    <input type="hidden" id="f_loan_id" value="${refId}">
+    <input value="${loan ? loan.name : ''}" readonly>
+
+    <input type="date" id="f_date" value="${today}">
+    <input type="number" id="f_amount" placeholder="ยอดจ่ายรวม" value="${loan ? loan.monthly : ''}">
+    <input type="number" id="f_principal_paid" placeholder="เงินต้นที่ตัดได้">
+    <input type="number" id="f_interest_paid" placeholder="ดอกเบี้ยงวดนี้">
+    <input type="number" id="f_balance_after" placeholder="เงินต้นคงเหลือหลังจ่าย">
+
+    <textarea id="f_note" placeholder="หมายเหตุ เช่น งวดที่ 1 / จากบิลธนาคาร"></textarea>
+    <input type="file" id="f_receipt" accept="image/*">
+
+    <button class="btn" onclick="addLoanPayment()">บันทึกจ่ายค่างวด</button>
+  </div>`;
+}
   if(type==='saving'){
     h = `<div class="form">
       <input id="f_name" placeholder="ชื่อเป้าหมาย เช่น เงินฉุกเฉิน">
@@ -524,16 +984,64 @@ function openForm(type, refId=''){
     </div>`;
   }
   if(type==='category'){
-    h = `<div class="form">
-      <select id="f_type"><option value="income">หมวดรายรับ</option><option value="expense">หมวดรายจ่าย</option></select>
-      <input id="f_icon" placeholder="ไอคอน เช่น 💼" value="🌸">
-      <input id="f_name" placeholder="ชื่อหมวดหมู่">
-      <button class="btn" onclick="addCategory()">บันทึกหมวดหมู่</button>
-    </div>`;
-  }
+  h = `<div class="form">
+    <select id="f_type">
+      <option value="income">หมวดรายรับ</option>
+      <option value="expense">หมวดรายจ่าย</option>
+    </select>
+
+    <input id="f_icon" placeholder="ไอคอน เช่น fa-solid fa-heart" value="fa-solid fa-heart">
+
+    <input id="f_name" placeholder="ชื่อหมวดหมู่">
+
+    <button class="btn" onclick="addCategory()">บันทึกหมวดหมู่</button>
+  </div>`;
+}
   formBody.innerHTML = h;
   formModal.classList.add('show');
 }
+function addCategory(){
+  if(!val('f_name')) {
+    return showError('กรอกชื่อหมวดก่อนค่ะ');
+  }
+
+  db.categories.unshift({
+    id: id(),
+    type: val('f_type'),
+    name: val('f_name'),
+    icon: val('f_icon') || 'fa-solid fa-heart'
+  });
+
+  save();
+  closeForm();
+  showSuccess('บันทึกหมวดหมู่สำเร็จ');
+  render();
+}
+
+function calcLoanPreview(){
+  const principal = num('f_total');
+  const annualRate = num('f_interest');
+  const years = num('f_years');
+
+  if(!principal || !annualRate || !years){
+    el('loanPreview').innerHTML = 'กรอกเงินต้น ดอกเบี้ย และจำนวนปี เพื่อคำนวณ';
+    return;
+  }
+
+  const totalInterest = principal * (annualRate / 100) * years;
+  const totalPay = principal + totalInterest;
+  const monthly = totalPay / (years * 12);
+
+  el('f_monthly').value = Math.round(monthly);
+
+  el('loanPreview').innerHTML = `
+    เงินต้น: ${money(principal)}<br>
+    ดอกเบี้ยรวมโดยประมาณ: ${money(totalInterest)}<br>
+    ยอดรวมที่ต้องจ่าย: ${money(totalPay)}<br>
+    ค่างวดประมาณ: ${money(monthly)} / เดือน
+  `;
+}
+
 function fileToBase64(input){
   return new Promise(resolve=>{
     const file = input?.files?.[0];
@@ -543,77 +1051,397 @@ function fileToBase64(input){
     reader.readAsDataURL(file);
   });
 }
-async function addIncome(){
-  if(!val('f_title') || num('f_amount')<=0) return alert('กรอกชื่อรายการและจำนวนเงินก่อนค่ะ');
-  const img = await fileToBase64(el('f_receipt'));
-  db.income.unshift({id:id(),date:val('f_date'),category:val('f_category'),title:val('f_title'),amount:num('f_amount'),note:val('f_note'),receipt:img});
-  if(img) db.receipts.unshift({id:id(),date:val('f_date'),title:val('f_title'),amount:num('f_amount'),type:'รายรับ',note:val('f_note'),image:img});
-  save(); closeForm(); render();
-}
-async function addExpense(){
-  if(!val('f_title') || num('f_amount')<=0) return alert('กรอกชื่อรายการและจำนวนเงินก่อนค่ะ');
-  const img = await fileToBase64(el('f_receipt'));
-  db.expense.unshift({id:id(),date:val('f_date'),category:val('f_category'),title:val('f_title'),amount:num('f_amount'),note:val('f_note'),receipt:img});
-  if(img) db.receipts.unshift({id:id(),date:val('f_date'),title:val('f_title'),amount:num('f_amount'),type:'รายจ่าย',note:val('f_note'),image:img});
-  save(); closeForm(); render();
-}
-function addLoan(){
-  if(!val('f_name')) return alert('กรอกชื่อรายการผ่อนก่อนค่ะ');
-  db.loans.unshift({id:id(),name:val('f_name'),total:num('f_total'),down:num('f_down'),monthly:num('f_monthly'),due:val('f_due'),note:val('f_note')});
-  if(num('f_down')>0){
-    const loanId = db.loans[0].id;
-    db.loanPayments.unshift({id:id(),loan_id:loanId,date:today,amount:num('f_down'),note:'ผ่อนชุดแรก / เงินดาวน์',receipt:''});
+async function addIncome() {
+  if (num('f_amount') <= 0) {
+    return showError('กรอกชื่อรายการและจำนวนเงินก่อนค่ะ');
   }
-  save(); closeForm(); go('homepay');
+
+  const { error } = await supabaseClient
+    .from('money_income')
+    .insert({
+  title: val('f_category'),
+  category: val('f_category'),
+  amount: num('f_amount'),
+  income_date: val('f_date'),
+  note: val('f_note')
+});
+
+  if (error) {
+    console.error(error);
+    return showError('บันทึกรายรับไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+
+  showSuccess('บันทึกรายรับสำเร็จ ');
+
+  await loadDataFromSupabase();
+
+  go('income');
 }
-async function addLoanPayment(){
-  const img = await fileToBase64(el('f_receipt'));
+
+async function addExpense() {
+  if (num('f_amount') <= 0) {
+    return showError('กรอกจำนวนเงินก่อนค่ะ');
+  }
+
+  const categoryName = val('f_category');
+
+  const payload = {
+    title: categoryName,
+    category: categoryName,
+    amount: num('f_amount'),
+    expense_date: val('f_date'),
+    note: val('f_note')
+  };
+
+  let error;
+
+  if (window.editExpenseId) {
+    const result = await supabaseClient
+      .from('money_expense')
+      .update(payload)
+      .eq('id', window.editExpenseId);
+
+    error = result.error;
+  } else {
+    const result = await supabaseClient
+      .from('money_expense')
+      .insert(payload);
+
+    error = result.error;
+  }
+
+  if (error) {
+    console.error(error);
+    return showError('บันทึกรายจ่ายไม่สำเร็จ : ' + error.message);
+  }
+
+  window.editExpenseId = null;
+
+  closeForm();
+
+  showSuccess('บันทึกรายจ่ายสำเร็จ 🧾');
+
+ await loadDataFromSupabase();
+
+go('expense');
+}
+async function deleteExpense(id){
+
+  const ok = await Swal.fire({
+    title:'ยืนยันการลบ',
+    text:'ต้องการลบรายการนี้หรือไม่',
+    icon:'warning',
+    showCancelButton:true,
+    confirmButtonText:'ลบ',
+    cancelButtonText:'ยกเลิก'
+  });
+
+  if(!ok.isConfirmed) return;
+
+  const { error } = await supabaseClient
+    .from('money_expense')
+    .delete()
+    .eq('id', id);
+
+  if(error){
+    return showError(error.message);
+  }
+
+  showSuccess('ลบสำเร็จ');
+
+  await loadDataFromSupabase();
+
+  closeExpenseDetail();
+}
+async function editExpense(id){
+  const row = db.expense.find(x => x.id === id);
+
+  if (!row) {
+    return showError('ไม่พบรายการรายจ่าย');
+  }
+
+  window.editExpenseId = id;
+
+  Swal.close();
+  openForm('expense');
+
+  setTimeout(() => {
+    el('f_date').value = row.date || today;
+    el('f_category').value = row.category || '';
+    el('f_amount').value = row.amount || 0;
+    el('f_note').value = row.note || '';
+  }, 100);
+}
+
+async function addLoan() {
+  if (!val('f_name')) {
+    return showError('กรอกชื่อรายการผ่อนก่อนค่ะ');
+  }
+
+  const principal = num('f_total');
+  const interestRate = num('f_interest');
+  const totalInstallments = num('f_total_installments');
+  const paidInstallments = num('f_paid_installments');
+  const paidAmount = num('f_down');
+
+  const { error } = await supabaseClient
+    .from('money_loans')
+    .insert({
+      name: val('f_name'),
+      creditor: val('f_creditor'),
+      loan_type: val('f_loan_type'),
+      principal: principal,
+      total: principal,
+      interest_rate: interestRate,
+      total_interest: 0,
+      monthly: num('f_monthly'),
+      due_day: val('f_due'),
+      paid_installments: paidInstallments,
+      total_installments: totalInstallments,
+      start_date: val('f_start_date'),
+      expected_end_date: val('f_expected_end_date'),
+      calc_method: val('f_calc_method'),
+      note: val('f_note')
+    });
+
+  if (error) {
+    console.error(error);
+    return showError('บันทึกสัญญาผ่อนไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+  showSuccess('บันทึกสัญญาผ่อนสำเร็จ ');
+  await loadDataFromSupabase();
+  go('homepay');
+}
+
+async function addLoanPayment() {
   const loanId = val('f_loan_id');
-  db.loanPayments.unshift({id:id(),loan_id:loanId,date:val('f_date'),amount:num('f_amount'),note:val('f_note'),receipt:img});
-  const loan = db.loans.find(x=>x.id===loanId);
-  if(img) db.receipts.unshift({id:id(),date:val('f_date'),title:'ค่างวด '+(loan?.name||''),amount:num('f_amount'),type:'ค่างวด',note:val('f_note'),image:img});
-  save(); closeForm(); render();
+
+  if (num('f_amount') <= 0) {
+    return showError('กรอกยอดจ่ายรวมก่อนค่ะ');
+  }
+
+  const { error } = await supabaseClient
+    .from('money_loan_payments')
+    .insert({
+      loan_id: loanId,
+      payment_date: val('f_date'),
+      amount: num('f_amount'),
+      principal_paid: num('f_principal_paid'),
+      interest_paid: num('f_interest_paid'),
+      balance_after: num('f_balance_after'),
+      note: val('f_note')
+    });
+
+  if (error) {
+    console.error(error);
+    return showError('บันทึกค่างวดไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+  showSuccess('บันทึกค่างวดสำเร็จ ');
+  await loadDataFromSupabase();
+  go('homepay');
 }
-function addSaving(){
-  if(!val('f_name')) return alert('กรอกชื่อเงินออมก่อนค่ะ');
-  db.saving.unshift({id:id(),name:val('f_name'),target:num('f_target'),amount:num('f_amount'),note:val('f_note')});
-  save(); closeForm(); go('saving');
+
+async function addSaving() {
+  if (!val('f_name')) {
+    return showError('กรอกชื่อเงินออมก่อนค่ะ');
+  }
+
+  const { error } = await supabaseClient
+    .from('money_savings')
+    .insert({
+      name: val('f_name'),
+      target: num('f_target'),
+      amount: num('f_amount'),
+      note: val('f_note')
+    });
+
+  if (error) {
+    console.error(error);
+    return showError('บันทึกเงินออมไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+
+  showSuccess('บันทึกเงินออมสำเร็จ');
+
+  await loadDataFromSupabase();
+
+  go('saving');
 }
-async function addGold(){
-  if(num('f_amount')<=0) return alert('กรอกจำนวนเงินก่อนค่ะ');
+async function addGold() {
+  if (num('f_amount') <= 0) {
+    return showError('กรอกจำนวนเงินก่อนค่ะ');
+  }
+
+  const { error } = await supabaseClient
+    .from('money_gold')
+    .insert({
+      gold_date: val('f_date'),
+      amount: num('f_amount'),
+      weight: val('f_weight'),
+      gold_price: num('f_gold_price'),
+      shop: val('f_shop')
+    });
+
+  if (error) {
+    console.error(error);
+    return showError('บันทึกทองออมไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+
+  showSuccess('บันทึกทองออมสำเร็จ ');
+
+  await loadDataFromSupabase();
+
+  go('gold');
+}
+
+async function addReceipt() {
+  if (!val('f_title')) {
+    return showError('กรอกชื่อใบเสร็จก่อนค่ะ');
+  }
+
   const img = await fileToBase64(el('f_receipt'));
-  db.gold.unshift({id:id(),date:val('f_date'),amount:num('f_amount'),weight:val('f_weight'),gold_price:num('f_gold_price'),shop:val('f_shop'),receipt:img});
-  if(img) db.receipts.unshift({id:id(),date:val('f_date'),title:'ทองออม '+val('f_shop'),amount:num('f_amount'),type:'ทองออม',note:val('f_weight'),image:img});
-  save(); closeForm(); go('gold');
+
+  const { error } = await supabaseClient
+    .from('money_receipts')
+    .insert({
+      receipt_date: val('f_date'),
+      title: val('f_title'),
+      amount: num('f_amount'),
+      type: val('f_type'),
+      note: val('f_note'),
+      image_url: img
+    });
+
+  if (error) {
+    console.error(error);
+    return showError('บันทึกใบเสร็จไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+
+  showSuccess('บันทึกใบเสร็จสำเร็จ ');
+
+  await loadDataFromSupabase();
+
+  go('receipts');
 }
-async function addReceipt(){
-  if(!val('f_title')) return alert('กรอกชื่อใบเสร็จก่อนค่ะ');
-  const img = await fileToBase64(el('f_receipt'));
-  db.receipts.unshift({id:id(),date:val('f_date'),title:val('f_title'),amount:num('f_amount'),type:val('f_type'),note:val('f_note'),image:img});
-  save(); closeForm(); go('receipts');
+
+async function del(type, rid){
+
+  const result = await Swal.fire({
+    title: 'ยืนยันการลบ',
+    text: 'คุณต้องการลบรายการนี้ใช่หรือไม่',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ff5fa2',
+    cancelButtonColor: '#d1d5db',
+    confirmButtonText: ' ลบ',
+    cancelButtonText: 'ยกเลิก'
+  });
+
+  if (!result.isConfirmed) return;
+
+  const tableMap = {
+    income: 'money_income',
+    expense: 'money_expense',
+    saving: 'money_savings',
+    gold: 'money_gold',
+    receipts: 'money_receipts',
+    loanPayments: 'money_loan_payments'
+  };
+
+  const table = tableMap[type];
+
+  if (!table) {
+    return showError('ไม่พบชื่อตารางสำหรับลบ');
+  }
+
+  const { error } = await supabaseClient
+    .from(table)
+    .delete()
+    .eq('id', rid);
+
+  if(error){
+    return showError(error.message);
+  }
+
+  showSuccess('ลบข้อมูลสำเร็จ');
+
+  await loadDataFromSupabase();
 }
-function addCategory(){
-  if(!val('f_name')) return alert('กรอกชื่อหมวดก่อนค่ะ');
-  db.categories.unshift({id:id(),type:val('f_type'),name:val('f_name'),icon:val('f_icon') || '🌸'});
-  save(); closeForm(); render();
+async function delLoan(rid){
+
+  const result = await Swal.fire({
+    title: 'ลบสัญญาผ่อน',
+    text: 'ลบสัญญาพร้อมประวัติการจ่ายทั้งหมด ?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ff5fa2',
+    cancelButtonColor: '#d1d5db',
+    confirmButtonText: ' ลบ',
+    cancelButtonText: 'ยกเลิก'
+  });
+
+  if (!result.isConfirmed) return;
+
+  const { error } = await supabaseClient
+    .from('money_loans')
+    .delete()
+    .eq('id', rid);
+
+  if(error){
+    return showError(error.message);
+  }
+
+  showSuccess('ลบสัญญาผ่อนสำเร็จ ');
+
+  await loadDataFromSupabase();
 }
-function del(type, rid){
-  if(!confirm('ลบรายการนี้ใช่ไหมคะ?')) return;
-  db[type] = db[type].filter(x=>x.id!==rid);
-  save(); render();
-}
-function delLoan(rid){
-  if(!confirm('ลบสัญญาผ่อนนี้ พร้อมประวัติการจ่าย ใช่ไหมคะ?')) return;
-  db.loans = db.loans.filter(x=>x.id!==rid);
-  db.loanPayments = db.loanPayments.filter(x=>x.loan_id!==rid);
-  save(); render();
-}
-function addSavingMore(rid){
-  const row = db.saving.find(x=>x.id===rid);
-  const amount = Number(prompt('เพิ่มเงินออมกี่บาท',0)||0);
-  if(amount<=0) return;
-  row.amount = Number(row.amount||0)+amount;
-  save(); render();
+
+async function addSavingMore(rid) {
+  const row = db.saving.find(x => x.id === rid);
+
+  if (!row) {
+    return showError('ไม่พบรายการเงินออม');
+  }
+
+  const { value: amount } = await Swal.fire({
+    title: 'เพิ่มเงินออม',
+    input: 'number',
+    inputLabel: 'จำนวนเงิน',
+    inputPlaceholder: 'กรอกจำนวนเงิน',
+    showCancelButton: true,
+    confirmButtonText: 'บันทึก',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#ff5fa2'
+  });
+
+  if (!amount || Number(amount) <= 0) return;
+
+  const newAmount = Number(row.amount || 0) + Number(amount);
+
+  const { error } = await supabaseClient
+    .from('money_savings')
+    .update({ amount: newAmount })
+    .eq('id', rid);
+
+  if (error) {
+    console.error(error);
+    return showError('อัปเดตเงินออมไม่สำเร็จ : ' + error.message);
+  }
+
+  showSuccess(`เพิ่มเงินออม ${money(amount)} สำเร็จ `);
+
+  await loadDataFromSupabase();
 }
 function render(){
   const totalIncome=sum(db.income), totalExpense=sum(db.expense);
@@ -649,42 +1477,225 @@ function item(title, sub, amount, cls, type, rid, img=''){
     <div class="amount ${cls||''}">${amount}</div>
   </div>`;
 }
-function empty(txt='ยังไม่มีข้อมูล กดปุ่ม + เพื่อเพิ่มรายการได้เลยค่ะ 💗'){ return `<div class="empty">${txt}</div>`; }
+function empty(txt='ยังไม่มีข้อมูล กดปุ่ม + เพื่อเพิ่มรายการได้เลยค่ะ'){ return `<div class="empty">${txt}</div>`; }
 function renderIncome(){
-  incomeList.innerHTML = db.income.length ? db.income.map(x=>item(x.title,`${x.date} • ${x.category} ${x.note?'• '+x.note:''}`,money(x.amount),'in','income',x.id,x.receipt)).join('') : empty();
-  const cats = db.categories.filter(c=>c.type==='income');
-  incomeCategorySummary.innerHTML = cats.map(c=>{
-    const total = sum(db.income.filter(x=>x.category===c.name));
-    return `<div class="cat-card"><span>${c.icon}</span>${c.name}<br><b style="color:var(--green)">${money(total)}</b></div>`;
+  const cats = db.categories.filter(c => c.type === 'income');
+
+  incomeCategorySummary.innerHTML = cats.map(c => {
+    const total = sum(db.income.filter(x => x.category === c.name));
+
+    return `
+      <div class="cat-card" style="cursor:pointer" onclick="openIncomeCategoryDetail('${c.name}')">
+        <span>${c.icon}</span>
+        ${c.name}<br>
+        <b style="color:var(--green)">${money(total)}</b>
+        <br><br>
+        <button class="mini danger" onclick="event.stopPropagation(); deleteCategory('${c.id}')">
+          ลบ
+        </button>
+      </div>
+    `;
   }).join('');
 }
+function openIncomeCategoryDetail(categoryName){
+  const rows = db.income.filter(x => x.category === categoryName);
+
+  const html = rows.length
+    ? rows.map(x => `
+        <div class="item">
+          <div>
+            <h4>${x.title}</h4>
+            <p>${x.date} • ${x.category} ${x.note ? '• ' + x.note : ''}</p>
+          </div>
+          <div>
+            <div class="amount in">${money(x.amount)}</div>
+            <button class="mini danger" onclick="del('income','${x.id}'); Swal.close();">
+              ลบ
+            </button>
+          </div>
+        </div>
+      `).join('')
+    : `<div class="empty">ยังไม่มีรายการในหมวด ${categoryName}</div>`;
+
+  const total = sum(rows);
+
+  Swal.fire({
+    title: `รายละเอียด ${categoryName}`,
+    html: `
+      <div style="text-align:left">
+        <div class="item" style="margin-bottom:10px">
+          <div>
+            <h4>ยอดรวม ${categoryName}</h4>
+            <p>มีทั้งหมด ${rows.length} รายการ</p>
+          </div>
+          <div class="amount in">${money(total)}</div>
+        </div>
+        <div class="list">${html}</div>
+      </div>
+    `,
+    width: 760,
+    confirmButtonText: 'ปิด',
+    confirmButtonColor: '#ff5fa2'
+  });
+}
+async function deleteCategory(id){
+
+  const result = await Swal.fire({
+    title: 'ลบหมวดหมู่ ?',
+    text: 'หมวดหมู่นี้จะถูกลบออก',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ลบ',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#ff5fa2'
+  });
+
+  if(!result.isConfirmed) return;
+
+  db.categories =
+    db.categories.filter(x => x.id !== id);
+
+  save();
+
+  render();
+
+  showSuccess('ลบหมวดหมู่สำเร็จ');
+}
 function renderExpense(){
-  expenseList.innerHTML = db.expense.length ? db.expense.map(x=>item(x.title,`${x.date} • ${x.category} ${x.note?'• '+x.note:''}`,money(x.amount),'out','expense',x.id,x.receipt)).join('') : empty();
+  const cats = db.categories.filter(c => c.type === 'expense');
+
+  expenseCategorySummary.innerHTML = cats.map(c => {
+    const total = sum(db.expense.filter(x => x.category === c.name));
+
+    return `
+      <div class="cat-card" style="cursor:pointer" onclick="openExpenseCategoryDetail('${c.name}')">
+        <span>${c.icon}</span>
+        ${c.name}<br>
+        <b style="color:var(--red)">${money(total)}</b>
+        <br><br>
+        <button class="mini danger" onclick="event.stopPropagation(); deleteCategory('${c.id}')">
+          ลบ
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+function openExpenseCategoryDetail(categoryName){
+  const rows = db.expense.filter(x => x.category === categoryName);
+  const total = sum(rows);
+
+  const html = rows.length
+    ? rows.map(x => `
+      <div class="item">
+        <div>
+          <h4>${x.title}</h4>
+          <p>${x.date} • ${x.category} ${x.note ? '• ' + x.note : ''}</p>
+
+          <div class="actions">
+            <button class="mini" onclick="editExpense('${x.id}'); Swal.close();">
+              แก้ไข
+            </button>
+
+            <button class="mini danger" onclick="del('expense','${x.id}'); Swal.close();">
+              ลบ
+            </button>
+          </div>
+        </div>
+
+        <div class="amount out">${money(x.amount)}</div>
+      </div>
+    `).join('')
+    : `<div class="empty">ยังไม่มีรายการในหมวด ${categoryName}</div>`;
+
+  Swal.fire({
+    title: `รายละเอียด ${categoryName}`,
+    html: `
+      <div style="text-align:left">
+        <div class="item" style="margin-bottom:10px">
+          <div>
+            <h4>ยอดรวม ${categoryName}</h4>
+            <p>มีทั้งหมด ${rows.length} รายการ</p>
+          </div>
+          <div class="amount out">${money(total)}</div>
+        </div>
+
+        <div class="list">${html}</div>
+      </div>
+    `,
+    width: 760,
+    confirmButtonText: 'ปิด',
+    confirmButtonColor: '#ff5fa2'
+  });
 }
 function renderLoans(){
   loanList.innerHTML = db.loans.length ? db.loans.map(l=>{
-    const pays = db.loanPayments.filter(p=>p.loan_id===l.id);
+    const pays = db.loanPayments.filter(p => p.loan_id === l.id);
+
     const paid = sum(pays);
-    const left = Math.max(0,Number(l.total||0)-paid);
-    const pct = l.total ? Math.min(100,Math.round(paid/l.total*100)) : 0;
-    const payHtml = pays.length ? pays.map(p=>`
-      <div class="home-card">
-        <b>งวดวันที่ ${p.date}</b>
-        <p style="margin:5px 0;color:var(--muted);font-weight:800">${p.note||'-'} • ${money(p.amount)}</p>
-        ${imageTag(p.receipt)}
-        <button class="mini danger" onclick="del('loanPayments','${p.id}')">ลบงวดนี้</button>
-      </div>`).join('') : '<p style="color:var(--muted);font-weight:800">ยังไม่มีประวัติการจ่ายรายเดือน</p>';
-    return `<div class="card">
-      <div class="card-title"><h3>${l.name}</h3><span class="badge">จ่ายทุกวันที่ ${l.due||'-'}</span></div>
-      <p style="color:var(--muted);font-weight:800;line-height:1.6">ยอดทั้งหมด ${money(l.total)} • ค่างวด ${money(l.monthly)}/เดือน • จ่ายแล้ว ${money(paid)} • คงเหลือ ${money(left)}</p>
-      <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
-      <div class="actions">
-        <button class="mini" onclick="openForm('loanPay','${l.id}')">+ บันทึกจ่ายเดือนนี้</button>
-        <button class="mini danger" onclick="delLoan('${l.id}')">ลบสัญญา</button>
+    const totalInterestPaid = sum(pays, 'interest_paid');
+    const totalPrincipalPaid = sum(pays, 'principal_paid');
+
+    const left = Math.max(0, Number(l.total || 0) - totalPrincipalPaid);
+    const pct = l.total ? Math.min(100, Math.round(totalPrincipalPaid / l.total * 100)) : 0;
+
+    return `
+      <div class="card">
+        <div class="card-title">
+          <h3>${l.name}</h3>
+          <span class="badge">จ่ายทุกวันที่ ${l.due || '-'}</span>
+        </div>
+
+        <p style="color:var(--muted);font-weight:800;line-height:1.7">
+          ยอดทั้งหมด ${money(l.total)}<br>
+          จ่ายแล้ว ${money(paid)}<br>
+          ดอกเบี้ย ${money(totalInterestPaid)}<br>
+          เงินต้น ${money(totalPrincipalPaid)}<br>
+          คงเหลือ ${money(left)}
+        </p>
+
+        <div class="progress">
+          <div class="bar" style="width:${pct}%"></div>
+        </div>
+
+        <div class="actions">
+          <button class="mini" onclick="openForm('loanPay','${l.id}')">+ บันทึกจ่ายเดือนนี้</button>
+          <button class="mini" onclick="openLoanPaymentsDetail('${l.id}')">ดูงวดที่จ่ายแล้ว</button>
+          <button class="mini" onclick="editLoan('${l.id}')">แก้ไข</button>
+          <button class="mini danger" onclick="delLoan('${l.id}')">ลบสัญญา</button>
+        </div>
       </div>
-      <div style="margin-top:12px">${payHtml}</div>
-    </div>`;
-  }).join('') : empty('ยังไม่มีรายการผ่อนบ้าน/หนี้ กด + เพิ่มสัญญาก่อนได้เลยค่ะ 🏠');
+    `;
+  }).join('') : empty('ยังไม่มีรายการผ่อนบ้าน/หนี้ กด + เพิ่มสัญญาก่อนได้เลยค่ะ');
+}
+function openLoanPaymentsDetail(loanId){
+  const loan = db.loans.find(x => x.id === loanId);
+  const pays = db.loanPayments.filter(p => p.loan_id === loanId);
+
+  const html = pays.length ? pays.map(p => `
+    <div class="item">
+      <div>
+        <h4>งวดวันที่ ${p.date}</h4>
+        <p style="line-height:1.7">
+          ยอดจ่ายรวม: ${money(p.amount)}<br>
+          เงินต้น: ${money(p.principal_paid)}<br>
+          ดอกเบี้ย: ${money(p.interest_paid)}<br>
+          เงินต้นคงเหลือ: ${money(p.balance_after)}<br>
+          ${p.note ? 'หมายเหตุ: ' + p.note : ''}
+        </p>
+        <button class="mini danger" onclick="del('loanPayments','${p.id}'); Swal.close();">
+          ลบงวดนี้
+        </button>
+      </div>
+    </div>
+  `).join('') : `<div class="empty">ยังไม่มีประวัติการจ่ายค่างวด</div>`;
+
+  Swal.fire({
+    title: `รายละเอียดงวด ${loan?.name || ''}`,
+    html: `<div class="list" style="text-align:left">${html}</div>`,
+    width: 760,
+    confirmButtonText: 'ปิด',
+    confirmButtonColor: '#ff5fa2'
+  });
 }
 function renderSaving(){
   savingList.innerHTML = db.saving.length ? db.saving.map(x=>{
@@ -696,7 +1707,7 @@ function renderGold(){
   goldList.innerHTML = db.gold.length ? db.gold.map(x=>item(`ทองออม ${x.weight||''}`,`${x.date} • ${x.shop||'-'} • ราคาทอง ${money(x.gold_price)}`,money(x.amount),'gold','gold',x.id,x.receipt)).join('') : empty();
 }
 function renderReceipts(){
-  receiptList.innerHTML = db.receipts.length ? db.receipts.map(x=>item(x.title,`${x.date} • ${x.type} ${x.note?'• '+x.note:''}`,money(x.amount),'','receipts',x.id,x.image)).join('') : empty('ยังไม่มีใบเสร็จ กด + เพื่อเก็บรูปใบเสร็จได้เลยค่ะ 📷');
+  receiptList.innerHTML = db.receipts.length ? db.receipts.map(x=>item(x.title,`${x.date} • ${x.type} ${x.note?'• '+x.note:''}`,money(x.amount),'','receipts',x.id,x.image)).join('') : empty('ยังไม่มีใบเสร็จ กด + เพื่อเก็บรูปใบเสร็จได้เลยค่ะ');
 }
 function renderLatest(){
   const rows=[
@@ -718,7 +1729,7 @@ function renderChart(a,b,c,d,e){
 }
 function exportCSV(type){
   const rows = db[type] || [];
-  if(!rows.length) return alert('ยังไม่มีข้อมูล');
+  if(!rows.length) return showError('ยังไม่มีข้อมูลสำหรับ Export');
   const keys = [...new Set(rows.flatMap(Object.keys))].filter(k=>k!=='receipt');
   const csv = [keys.join(','),...rows.map(r=>keys.map(k=>`"${String(r[k]??'').replaceAll('"','""')}"`).join(','))].join('\n');
   const a=document.createElement('a');
@@ -726,12 +1737,27 @@ function exportCSV(type){
   a.download=`sweet-pink-${type}.csv`;
   a.click();
 }
-function clearAll(){
-  if(!confirm('ล้างข้อมูลทั้งหมดในเครื่องนี้ใช่ไหมคะ?')) return;
+async function clearAll(){
+  const result = await Swal.fire({
+    title: 'ล้างข้อมูลในเครื่อง',
+    text: 'ต้องการล้างข้อมูล localStorage ในเครื่องนี้ใช่ไหม?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ff5fa2',
+    cancelButtonColor: '#d1d5db',
+    confirmButtonText: 'ล้างข้อมูล',
+    cancelButtonText: 'ยกเลิก'
+  });
+
+  if (!result.isConfirmed) return;
+
   localStorage.removeItem('sweetPinkMoneyDB');
-  location.reload();
+
+  showSuccess('ล้างข้อมูลในเครื่องสำเร็จ');
+
+  setTimeout(() => location.reload(), 900);
 }
-render();
+loadDataFromSupabase();
 </script>
 </body>
 </html>
