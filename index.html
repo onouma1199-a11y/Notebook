@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Pink Pocket Money</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --pink:#ff2f83;
+      --pink2:#ff7bb1;
+      --pink3:#fff0f7;
+      --pink4:#ffe0ee;
+      --gold:#d6a51f;
+      --green:#18a058;
+      --red:#ff4d6d;
+      --blue:#4f8cff;
+      --text:#3f3f46;
+      --muted:#7a7280;
+      --line:#ffd1e3;
+      --card:#ffffff;
+      --bg:#fff7fb;
+      --shadow:0 14px 34px rgba(255,47,131,.14);
+      --radius:26px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at -10% 0%, #ffe1ef 0 28%, transparent 45%),
+        radial-gradient(circle at 100% 10%, #fff2c7 0 20%, transparent 40%),
+        linear-gradient(180deg,#fff7fb,#fff);
+      color:var(--text);
+      min-height:100vh;
+    }
+    button,input,select,textarea{font:inherit}
+    .app{max-width:1180px;margin:auto;display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+    .sidebar{
+      padding:22px 16px;
+      position:sticky;top:0;height:100vh;
+    }
+    .brand{
+      background:linear-gradient(135deg,#fff,#fff3f8);
+      border:1px solid var(--line);
+      border-radius:30px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+    }
+    .brand-icon{
+      width:58px;height:58px;border-radius:22px;
+      background:linear-gradient(135deg,var(--pink),var(--pink2));
+      color:#fff;display:grid;place-items:center;
+      font-size:28px;font-weight:1000;
+      box-shadow:0 12px 24px rgba(255,47,131,.28);
+    }
+    .brand h1{margin:12px 0 2px;color:var(--pink);font-size:21px}
+    .brand p{margin:0;color:var(--muted);font-weight:700;font-size:13px}
+    .menu{
+      background:#fff;border:1px solid var(--line);border-radius:30px;
+      padding:10px;box-shadow:var(--shadow);
+    }
+    .nav{
+      width:100%;border:0;background:transparent;
+      padding:13px 14px;border-radius:20px;
+      text-align:left;font-weight:900;color:#57515b;
+      cursor:pointer;display:flex;align-items:center;gap:10px;
+      margin:3px 0;
+    }
+    .nav.active,.nav:hover{background:var(--pink3);color:var(--pink)}
+    .main{padding:22px 18px 120px}
+    .hero{
+      background:linear-gradient(135deg,#fff,#fff1f7);
+      border:1px solid var(--line);
+      border-radius:34px;
+      padding:22px;
+      box-shadow:var(--shadow);
+      display:flex;justify-content:space-between;gap:16px;align-items:center;
+      margin-bottom:16px;
+    }
+    .hero h2{margin:0;color:var(--pink);font-size:27px}
+    .hero p{margin:5px 0 0;color:var(--muted);font-weight:700}
+    .date-pill{
+      background:linear-gradient(135deg,var(--pink),var(--pink2));
+      color:#fff;border-radius:999px;padding:12px 17px;font-weight:1000;white-space:nowrap;
+    }
+    .section{display:none;animation:fade .18s ease}
+    .section.active{display:block}
+    @keyframes fade{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .card{
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .stat .icon{
+      width:42px;height:42px;border-radius:17px;background:var(--pink3);
+      display:grid;place-items:center;font-size:22px;margin-bottom:10px;
+    }
+    .stat small{color:var(--muted);font-weight:900}
+    .stat b{display:block;font-size:25px;margin-top:5px;color:#302936}
+    .stat.green b{color:var(--green)}
+    .stat.red b{color:var(--red)}
+    .stat.gold b{color:var(--gold)}
+    .panel{
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line);
+      border-radius:30px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      margin-top:16px;
+    }
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+    .panel h3{margin:0;color:var(--pink);font-size:20px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .form{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+    .form.two{grid-template-columns:repeat(2,1fr)}
+    input,select,textarea{
+      width:100%;border:1.5px solid var(--line);
+      background:#fff;border-radius:18px;padding:13px 14px;
+      color:var(--text);outline:none;font-weight:800;
+    }
+    textarea{min-height:92px;resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 0 4px rgba(255,47,131,.1)}
+    .btn{
+      border:0;border-radius:18px;padding:13px 17px;
+      background:linear-gradient(135deg,var(--pink),var(--pink2));
+      color:white;font-weight:1000;cursor:pointer;box-shadow:0 12px 22px rgba(255,47,131,.2);
+    }
+    .btn.light{background:#fff;color:var(--pink);border:1px solid var(--line);box-shadow:none}
+    .btn.red{background:var(--red)}
+    .btn.gold{background:linear-gradient(135deg,#d6a51f,#f3c74f)}
+    .btn.green{background:var(--green)}
+    .list{display:grid;gap:10px}
+    .item{
+      background:#fff8fb;border:1px solid var(--line);border-radius:22px;
+      padding:14px;display:flex;justify-content:space-between;gap:10px;align-items:center;
+    }
+    .item-title{font-weight:1000}
+    .item-sub{font-size:12px;color:var(--muted);font-weight:800;margin-top:3px}
+    .amount{font-weight:1000;font-size:18px;white-space:nowrap}
+    .amount.in{color:var(--green)}
+    .amount.out{color:var(--red)}
+    .amount.gold{color:var(--gold)}
+    .mini-actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+    .mini{
+      border:0;border-radius:13px;padding:8px 10px;font-weight:900;cursor:pointer;
+      background:#fff;color:var(--pink);border:1px solid var(--line);
+    }
+    .mini.danger{color:var(--red)}
+    .badge{
+      display:inline-flex;align-items:center;gap:4px;
+      background:var(--pink3);color:var(--pink);
+      border:1px solid var(--line);
+      padding:6px 10px;border-radius:999px;font-size:12px;font-weight:1000;
+    }
+    .progress{height:12px;border-radius:999px;background:#ffe1ee;overflow:hidden;margin-top:8px}
+    .bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink),var(--pink2));width:0}
+    .empty{
+      text-align:center;padding:26px;border:1px dashed var(--line);border-radius:24px;
+      color:var(--muted);font-weight:900;background:#fffafd;
+    }
+    .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .bottom-nav{display:none}
+    .toast{
+      position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);
+      background:#302936;color:#fff;padding:13px 18px;border-radius:999px;
+      opacity:0;pointer-events:none;transition:.2s;z-index:50;font-weight:900;
+      box-shadow:0 10px 28px rgba(0,0,0,.18);
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .modal{
+      position:fixed;inset:0;background:rgba(30,20,30,.35);backdrop-filter:blur(6px);
+      display:none;align-items:center;justify-content:center;padding:18px;z-index:80;
+    }
+    .modal.show{display:flex}
+    .modal-box{background:#fff;border:1px solid var(--line);border-radius:30px;padding:20px;width:min(520px,100%);box-shadow:var(--shadow)}
+    .modal-box h3{margin:0 0 12px;color:var(--pink)}
+    @media(max-width:920px){
+      .app{display:block}
+      .sidebar{display:none}
+      .main{padding:14px 12px 105px}
+      .hero{border-radius:28px;padding:18px;align-items:flex-start;flex-direction:column}
+      .hero h2{font-size:23px}
+      .stats{grid-template-columns:repeat(2,1fr);gap:10px}
+      .grid2{grid-template-columns:1fr}
+      .form,.form.two{grid-template-columns:1fr}
+      .panel{padding:16px;border-radius:26px}
+      .bottom-nav{
+        display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
+        position:fixed;left:10px;right:10px;bottom:10px;
+        background:rgba(255,255,255,.92);backdrop-filter:blur(18px);
+        border:1px solid var(--line);border-radius:28px;padding:8px;
+        box-shadow:0 16px 36px rgba(255,47,131,.22);z-index:40;
+      }
+      .bn{
+        border:0;background:transparent;border-radius:20px;padding:8px 2px;
+        font-size:11px;font-weight:1000;color:var(--muted);cursor:pointer;
+      }
+      .bn span{display:block;font-size:20px;margin-bottom:2px}
+      .bn.active{background:var(--pink3);color:var(--pink)}
+    }
+    @media(max-width:420px){
+      .stats{grid-template-columns:1fr 1fr}
+      .stat b{font-size:20px}
+      .card{padding:14px;border-radius:22px}
+      .item{align-items:flex-start;flex-direction:column}
+      .amount{font-size:16px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">💗</div>
+      <h1 id="brandName">Pink Pocket</h1>
+      <p>บันทึกรายรับ รายจ่าย หนี้ ออม ทอง</p>
+    </div>
+    <div class="menu" id="sideMenu"></div>
+  </aside>
+
+  <main class="main">
+    <div class="hero">
+      <div>
+        <h2 id="pageTitle">Dashboard ภาพรวม</h2>
+        <p id="pageSub">ดูเงินเข้า เงินออก หนี้ ออม และทองออมในที่เดียว</p>
+      </div>
+      <div class="date-pill" id="todayText"></div>
+    </div>
+
+    <section id="dashboard" class="section active">
+      <div class="stats">
+        <div class="card stat green"><div class="icon">💰</div><small>รายรับเดือนนี้</small><b id="mIncome">฿0</b></div>
+        <div class="card stat red"><div class="icon">🧾</div><small>รายจ่ายเดือนนี้</small><b id="mExpense">฿0</b></div>
+        <div class="card stat"><div class="icon">👛</div><small>เงินคงเหลือ</small><b id="mBalance">฿0</b></div>
+        <div class="card stat red"><div class="icon">💳</div><small>หนี้คงเหลือ</small><b id="mDebt">฿0</b></div>
+        <div class="card stat green"><div class="icon">🏦</div><small>เงินออม</small><b id="mSaving">฿0</b></div>
+        <div class="card stat gold"><div class="icon">🥇</div><small>ทองออม</small><b id="mGold">฿0</b></div>
+        <div class="card stat"><div class="icon">🌟</div><small>ยอดที่หามาได้สะสม</small><b id="mEarned">฿0</b></div>
+        <div class="card stat"><div class="icon">🎯</div><small>เป้าหมายรวม</small><b id="mGoalPercent">0%</b><div class="progress"><div class="bar" id="goalBar"></div></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head"><h3>กราฟภาพรวม</h3><button class="btn light" onclick="go('report')">ดูรายงาน</button></div>
+          <canvas id="mainChart" height="150"></canvas>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>รายการล่าสุด</h3><button class="btn light" onclick="clearAllDemo()">ล้างข้อมูล</button></div>
+          <div id="latestList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="income" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>เพิ่มรายรับ</h3><span class="badge">เงินที่หามาได้</span></div>
+        <div class="form">
+          <input type="date" id="income_date">
+          <input id="income_title" placeholder="รายการ เช่น เงินเดือน / ขายของ">
+          <input type="number" id="income_amount" placeholder="จำนวนเงิน">
+          <select id="income_method"><option>เงินสด</option><option>โอน</option><option>บัญชีธนาคาร</option><option>พร้อมเพย์</option></select>
+        </div>
+        <br><textarea id="income_note" placeholder="หมายเหตุ"></textarea>
+        <br><br><button class="btn" onclick="addRecord('income')">+ บันทึกรายรับ</button>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>รายการรายรับ</h3><button class="btn light" onclick="exportCSV('income')">Export CSV</button></div><div id="incomeList" class="list"></div></div>
+    </section>
+
+    <section id="expense" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>เพิ่มรายจ่าย</h3><span class="badge">เงินออก</span></div>
+        <div class="form">
+          <input type="date" id="expense_date">
+          <select id="expense_category"><option>อาหาร</option><option>ค่าไฟ</option><option>ค่าน้ำ</option><option>บ้าน</option><option>รถ</option><option>ลูก</option><option>ของใช้</option><option>เที่ยว</option><option>สุขภาพ</option><option>อื่นๆ</option></select>
+          <input id="expense_title" placeholder="รายการ">
+          <input type="number" id="expense_amount" placeholder="จำนวนเงิน">
+        </div>
+        <br><textarea id="expense_note" placeholder="หมายเหตุ"></textarea>
+        <br><br><button class="btn" onclick="addRecord('expense')">+ บันทึกรายจ่าย</button>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>รายการรายจ่าย</h3><button class="btn light" onclick="exportCSV('expense')">Export CSV</button></div><div id="expenseList" class="list"></div></div>
+    </section>
+
+    <section id="debt" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>เพิ่มหนี้ที่ผ่อน</h3><span class="badge">คำนวณยอดคงเหลือ</span></div>
+        <div class="form">
+          <input id="debt_name" placeholder="ชื่อหนี้ เช่น รถ / บ้าน / บัตรเครดิต">
+          <input type="number" id="debt_total" placeholder="ยอดหนี้ทั้งหมด">
+          <input type="number" id="debt_paid" placeholder="จ่ายไปแล้ว">
+          <input type="number" id="debt_monthly" placeholder="ผ่อนต่อเดือน">
+          <input type="number" id="debt_due" placeholder="จ่ายทุกวันที่ เช่น 5">
+          <select id="debt_status"><option>กำลังผ่อน</option><option>ปิดหนี้แล้ว</option></select>
+          <input id="debt_note" placeholder="หมายเหตุ">
+        </div>
+        <br><button class="btn" onclick="addRecord('debt')">+ บันทึกหนี้</button>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>รายการหนี้สิน</h3><button class="btn light" onclick="exportCSV('debt')">Export CSV</button></div><div id="debtList" class="list"></div></div>
+    </section>
+
+    <section id="saving" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>เพิ่มเงินออม</h3><span class="badge">เป้าหมายชีวิต</span></div>
+        <div class="form">
+          <input id="saving_name" placeholder="เป้าหมาย เช่น เงินฉุกเฉิน">
+          <input type="number" id="saving_target" placeholder="เป้าหมายทั้งหมด">
+          <input type="number" id="saving_amount" placeholder="ออมแล้ว">
+          <select id="saving_type"><option>เงินสด</option><option>บัญชีธนาคาร</option><option>กองทุน</option><option>อื่นๆ</option></select>
+        </div>
+        <br><textarea id="saving_note" placeholder="หมายเหตุ"></textarea>
+        <br><br><button class="btn green" onclick="addRecord('saving')">+ บันทึกเงินออม</button>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>รายการเงินออม</h3><button class="btn light" onclick="exportCSV('saving')">Export CSV</button></div><div id="savingList" class="list"></div></div>
+    </section>
+
+    <section id="gold" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>เพิ่มทองออม</h3><span class="badge">สะสมทอง</span></div>
+        <div class="form">
+          <input type="date" id="gold_date">
+          <input type="number" id="gold_amount" placeholder="จำนวนเงินที่ออม">
+          <input id="gold_weight" placeholder="น้ำหนัก เช่น 0.1 กรัม">
+          <input type="number" id="gold_price" placeholder="ราคาทองตอนซื้อ">
+          <input id="gold_shop" placeholder="ร้าน/แอปที่ออม">
+        </div>
+        <br><textarea id="gold_note" placeholder="หมายเหตุ"></textarea>
+        <br><br><button class="btn gold" onclick="addRecord('gold')">+ บันทึกทองออม</button>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>รายการทองออม</h3><button class="btn light" onclick="exportCSV('gold')">Export CSV</button></div><div id="goldList" class="list"></div></div>
+    </section>
+
+    <section id="goal" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>เป้าหมายของฉัน</h3><span class="badge">วางแผนอนาคต</span></div>
+        <div class="form">
+          <input id="goal_name" placeholder="ชื่อเป้าหมาย เช่น ซื้อบ้าน / เที่ยว">
+          <input type="number" id="goal_target" placeholder="จำนวนเงินเป้าหมาย">
+          <input type="number" id="goal_current" placeholder="มีแล้ว">
+          <input type="date" id="goal_date">
+        </div>
+        <br><button class="btn" onclick="addRecord('goal')">+ เพิ่มเป้าหมาย</button>
+      </div>
+      <div class="panel"><h3>รายการเป้าหมาย</h3><div id="goalList" class="list"></div></div>
+    </section>
+
+    <section id="report" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>รายงานการเงิน</h3><button class="btn light" onclick="window.print()">พิมพ์ / Save PDF</button></div>
+        <div class="filter-row">
+          <select id="reportMonth" onchange="render()"></select>
+          <select id="reportYear" onchange="render()"></select>
+        </div>
+        <div class="stats">
+          <div class="card stat green"><div class="icon">💰</div><small>รายรับที่เลือก</small><b id="rIncome">฿0</b></div>
+          <div class="card stat red"><div class="icon">🧾</div><small>รายจ่ายที่เลือก</small><b id="rExpense">฿0</b></div>
+          <div class="card stat"><div class="icon">👛</div><small>คงเหลือ</small><b id="rBalance">฿0</b></div>
+          <div class="card stat gold"><div class="icon">🥇</div><small>ทองออม</small><b id="rGold">฿0</b></div>
+        </div>
+        <div style="margin-top:18px"><canvas id="reportChart" height="140"></canvas></div>
+      </div>
+    </section>
+
+    <section id="setting" class="section">
+      <div class="panel">
+        <div class="panel-head"><h3>ตั้งค่า</h3><span class="badge">ข้อมูลเก็บในเครื่อง</span></div>
+        <div class="form two">
+          <input id="setting_name" placeholder="ชื่อแอป / ชื่อบัญชี">
+          <input id="setting_owner" placeholder="ชื่อเจ้าของ">
+        </div>
+        <br>
+        <button class="btn" onclick="saveSetting()">บันทึกตั้งค่า</button>
+        <button class="btn light" onclick="openSql()">ดู SQL Supabase</button>
+      </div>
+      <div class="panel">
+        <h3>หมายเหตุ</h3>
+        <p style="font-weight:800;color:var(--muted);line-height:1.8">
+          ไฟล์นี้พร้อมใช้งานแบบไม่ต้องต่อฐานข้อมูลก่อน ข้อมูลจะเก็บในมือถือ/เครื่องที่เปิดเว็บด้วย localStorage
+          ถ้าต้องการให้ใช้หลายเครื่องพร้อมกัน ค่อยนำ SQL ไปสร้างตารางใน Supabase แล้วเปลี่ยนฟังก์ชันบันทึกเป็น insert/select ค่ะ
+        </p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bottom-nav" id="bottomMenu"></nav>
+
+<div class="toast" id="toast">บันทึกแล้วค่ะ</div>
+
+<div class="modal" id="sqlModal">
+  <div class="modal-box">
+    <div class="panel-head"><h3>SQL ตารางการเงิน</h3><button class="mini danger" onclick="closeSql()">ปิด</button></div>
+    <textarea readonly style="height:420px">create table personal_income (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid null,
+  branch_id uuid null,
+  income_date date not null,
+  title text not null,
+  amount numeric default 0,
+  payment_method text,
+  note text,
+  created_at timestamptz default now()
+);
+
+create table personal_expenses (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid null,
+  branch_id uuid null,
+  expense_date date not null,
+  category text,
+  title text not null,
+  amount numeric default 0,
+  payment_method text,
+  note text,
+  created_at timestamptz default now()
+);
+
+create table personal_debts (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid null,
+  branch_id uuid null,
+  debt_name text not null,
+  total_amount numeric default 0,
+  paid_amount numeric default 0,
+  monthly_payment numeric default 0,
+  due_day integer,
+  status text default 'active',
+  note text,
+  created_at timestamptz default now()
+);
+
+create table personal_savings (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid null,
+  branch_id uuid null,
+  goal_name text not null,
+  target_amount numeric default 0,
+  saved_amount numeric default 0,
+  saving_type text,
+  note text,
+  created_at timestamptz default now()
+);
+
+create table gold_savings (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid null,
+  branch_id uuid null,
+  gold_date date not null,
+  amount numeric default 0,
+  gold_weight text,
+  gold_price numeric default 0,
+  shop_name text,
+  note text,
+  created_at timestamptz default now()
+);
+
+create table personal_goals (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid null,
+  branch_id uuid null,
+  goal_name text not null,
+  target_amount numeric default 0,
+  current_amount numeric default 0,
+  target_date date,
+  status text default 'active',
+  created_at timestamptz default now()
+);</textarea>
+  </div>
+</div>
+
+<script>
+const menus = [
+  ['dashboard','🏠','หน้าหลัก','Dashboard ภาพรวม','ดูเงินเข้า เงินออก หนี้ ออม และทองออมในที่เดียว'],
+  ['income','💰','รายรับ','บันทึกรายรับ','เก็บยอดเงินที่หาได้ทั้งหมด'],
+  ['expense','🧾','รายจ่าย','บันทึกรายจ่าย','แยกหมวดค่าใช้จ่ายให้ดูง่าย'],
+  ['debt','💳','หนี้','หนี้สินที่ผ่อน','ดูยอดหนี้ จ่ายแล้ว และคงเหลือ'],
+  ['saving','🏦','ออม','เงินออม','ติดตามเป้าหมายเงินออม'],
+  ['gold','🥇','ทอง','ทองออม','บันทึกเงินออมทองและน้ำหนักทอง'],
+  ['goal','🎯','เป้าหมาย','เป้าหมายของฉัน','วางแผนสิ่งที่อยากเก็บเงินให้ถึง'],
+  ['report','📊','รายงาน','รายงานการเงิน','สรุปรายเดือน รายปี และพิมพ์รายงาน'],
+  ['setting','⚙️','ตั้งค่า','ตั้งค่า','ตั้งชื่อแอปและดู SQL สำหรับ Supabase']
+];
+const bottomIds = ['dashboard','income','expense','debt','report'];
+const today = new Date().toISOString().slice(0,10);
+let data = JSON.parse(localStorage.getItem('pinkPocketData') || '{}');
+let setting = JSON.parse(localStorage.getItem('pinkPocketSetting') || '{}');
+data.income ||= [];
+data.expense ||= [];
+data.debt ||= [];
+data.saving ||= [];
+data.gold ||= [];
+data.goal ||= [];
+
+let mainChart, reportChart;
+
+function init(){
+  document.getElementById('todayText').innerText = new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
+  ['income_date','expense_date','gold_date','goal_date'].forEach(id => document.getElementById(id).value = today);
+  setting_name.value = setting.name || 'Pink Pocket';
+  setting_owner.value = setting.owner || '';
+  brandName.innerText = setting.name || 'Pink Pocket';
+
+  sideMenu.innerHTML = menus.map(m => `<button class="nav ${m[0]==='dashboard'?'active':''}" onclick="go('${m[0]}')">${m[1]} ${m[2]}</button>`).join('');
+  bottomMenu.innerHTML = menus.filter(m => bottomIds.includes(m[0])).map(m => `<button class="bn ${m[0]==='dashboard'?'active':''}" onclick="go('${m[0]}')"><span>${m[1]}</span>${m[2]}</button>`).join('');
+
+  const y = new Date().getFullYear();
+  reportYear.innerHTML = Array.from({length:7},(_,i)=>y-3+i).map(v=>`<option ${v===y?'selected':''}>${v}</option>`).join('');
+  reportMonth.innerHTML = Array.from({length:12},(_,i)=>`<option value="${String(i+1).padStart(2,'0')}" ${i===new Date().getMonth()?'selected':''}>${i+1}</option>`).join('');
+  render();
+}
+function baht(n){ return '฿' + Number(n||0).toLocaleString('th-TH',{maximumFractionDigits:0}); }
+function num(id){ return Number(document.getElementById(id).value || 0); }
+function val(id){ return document.getElementById(id).value.trim(); }
+function save(){ localStorage.setItem('pinkPocketData', JSON.stringify(data)); }
+function toast(msg='บันทึกแล้วค่ะ'){
+  const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1400);
+}
+function go(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav,.bn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav').forEach((b,i)=>{ if(menus[i][0]===id) b.classList.add('active') });
+  document.querySelectorAll('.bn').forEach((b,i)=>{ if(bottomIds[i]===id) b.classList.add('active') });
+  const m = menus.find(x=>x[0]===id);
+  pageTitle.innerText = m[3]; pageSub.innerText = m[4];
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function addRecord(type){
+  const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+  if(type==='income'){
+    if(!val('income_title') || num('income_amount')<=0) return alert('กรอกรายการและจำนวนเงินก่อนค่ะ');
+    data.income.unshift({id,date:val('income_date'),title:val('income_title'),amount:num('income_amount'),method:val('income_method'),note:val('income_note')});
+    income_title.value=''; income_amount.value=''; income_note.value='';
+  }
+  if(type==='expense'){
+    if(!val('expense_title') || num('expense_amount')<=0) return alert('กรอกรายการและจำนวนเงินก่อนค่ะ');
+    data.expense.unshift({id,date:val('expense_date'),category:val('expense_category'),title:val('expense_title'),amount:num('expense_amount'),note:val('expense_note')});
+    expense_title.value=''; expense_amount.value=''; expense_note.value='';
+  }
+  if(type==='debt'){
+    if(!val('debt_name')) return alert('กรอกชื่อหนี้ก่อนค่ะ');
+    data.debt.unshift({id,name:val('debt_name'),total:num('debt_total'),paid:num('debt_paid'),monthly:num('debt_monthly'),due:val('debt_due'),status:val('debt_status'),note:val('debt_note')});
+    ['debt_name','debt_total','debt_paid','debt_monthly','debt_due','debt_note'].forEach(x=>document.getElementById(x).value='');
+  }
+  if(type==='saving'){
+    if(!val('saving_name')) return alert('กรอกชื่อเป้าหมายเงินออมก่อนค่ะ');
+    data.saving.unshift({id,name:val('saving_name'),target:num('saving_target'),amount:num('saving_amount'),type:val('saving_type'),note:val('saving_note')});
+    ['saving_name','saving_target','saving_amount','saving_note'].forEach(x=>document.getElementById(x).value='');
+  }
+  if(type==='gold'){
+    if(num('gold_amount')<=0) return alert('กรอกจำนวนเงินทองออมก่อนค่ะ');
+    data.gold.unshift({id,date:val('gold_date'),amount:num('gold_amount'),weight:val('gold_weight'),price:num('gold_price'),shop:val('gold_shop'),note:val('gold_note')});
+    ['gold_amount','gold_weight','gold_price','gold_shop','gold_note'].forEach(x=>document.getElementById(x).value='');
+  }
+  if(type==='goal'){
+    if(!val('goal_name')) return alert('กรอกชื่อเป้าหมายก่อนค่ะ');
+    data.goal.unshift({id,name:val('goal_name'),target:num('goal_target'),current:num('goal_current'),date:val('goal_date')});
+    ['goal_name','goal_target','goal_current'].forEach(x=>document.getElementById(x).value='');
+  }
+  save(); render(); toast();
+}
+function removeRecord(type,id){
+  if(!confirm('ต้องการลบรายการนี้ใช่ไหมคะ?')) return;
+  data[type] = data[type].filter(x=>x.id!==id);
+  save(); render(); toast('ลบแล้วค่ะ');
+}
+function payDebt(id){
+  const row = data.debt.find(x=>x.id===id); if(!row) return;
+  const amount = Number(prompt('กรอกยอดที่จ่ายเพิ่ม', row.monthly || 0) || 0);
+  if(amount<=0) return;
+  row.paid = Number(row.paid||0) + amount;
+  if(row.paid >= row.total) row.status = 'ปิดหนี้แล้ว';
+  data.expense.unshift({id:String(Date.now()),date:today,category:'ผ่อนหนี้',title:'จ่ายหนี้: '+row.name,amount,note:'บันทึกจากหน้าหนี้'});
+  save(); render(); toast('บันทึกจ่ายหนี้แล้วค่ะ');
+}
+function addSavingMoney(id){
+  const row = data.saving.find(x=>x.id===id); if(!row) return;
+  const amount = Number(prompt('กรอกยอดออมเพิ่ม', 0) || 0);
+  if(amount<=0) return;
+  row.amount = Number(row.amount||0)+amount;
+  save(); render(); toast('เพิ่มเงินออมแล้วค่ะ');
+}
+function addGoalMoney(id){
+  const row = data.goal.find(x=>x.id===id); if(!row) return;
+  const amount = Number(prompt('กรอกยอดเพิ่มในเป้าหมาย', 0) || 0);
+  if(amount<=0) return;
+  row.current = Number(row.current||0)+amount;
+  save(); render(); toast('อัปเดตเป้าหมายแล้วค่ะ');
+}
+function listOrEmpty(rows){ return rows.length ? rows.join('') : '<div class="empty">ยังไม่มีข้อมูล กดเพิ่มรายการด้านบนได้เลยค่ะ 💗</div>'; }
+function item(title, sub, amount, cls, actions=''){
+  return `<div class="item"><div><div class="item-title">${title}</div><div class="item-sub">${sub}</div>${actions}</div><div class="amount ${cls||''}">${amount}</div></div>`;
+}
+function percent(a,b){ return b>0 ? Math.min(100,Math.round((a/b)*100)) : 0; }
+function render(){
+  const nowYM = today.slice(0,7);
+  const monthIncome = data.income.filter(x=>String(x.date||'').slice(0,7)===nowYM).reduce((s,x)=>s+Number(x.amount||0),0);
+  const monthExpense = data.expense.filter(x=>String(x.date||'').slice(0,7)===nowYM).reduce((s,x)=>s+Number(x.amount||0),0);
+  const allIncome = data.income.reduce((s,x)=>s+Number(x.amount||0),0);
+  const debtLeft = data.debt.reduce((s,x)=>s+Math.max(0,Number(x.total||0)-Number(x.paid||0)),0);
+  const savingTotal = data.saving.reduce((s,x)=>s+Number(x.amount||0),0);
+  const goldTotal = data.gold.reduce((s,x)=>s+Number(x.amount||0),0);
+  const goalCurrent = data.goal.reduce((s,x)=>s+Number(x.current||0),0) + savingTotal;
+  const goalTarget = data.goal.reduce((s,x)=>s+Number(x.target||0),0) + data.saving.reduce((s,x)=>s+Number(x.target||0),0);
+  const gp = percent(goalCurrent, goalTarget);
+
+  mIncome.innerText=baht(monthIncome); mExpense.innerText=baht(monthExpense); mBalance.innerText=baht(monthIncome-monthExpense);
+  mDebt.innerText=baht(debtLeft); mSaving.innerText=baht(savingTotal); mGold.innerText=baht(goldTotal);
+  mEarned.innerText=baht(allIncome); mGoalPercent.innerText=gp+'%'; goalBar.style.width=gp+'%';
+
+  incomeList.innerHTML = listOrEmpty(data.income.map(x=>item(x.title, `${x.date} • ${x.method || '-'} ${x.note?'• '+x.note:''}`, baht(x.amount), 'in', `<div class="mini-actions"><button class="mini danger" onclick="removeRecord('income','${x.id}')">ลบ</button></div>`)));
+  expenseList.innerHTML = listOrEmpty(data.expense.map(x=>item(x.title, `${x.date} • ${x.category || '-'} ${x.note?'• '+x.note:''}`, baht(x.amount), 'out', `<div class="mini-actions"><button class="mini danger" onclick="removeRecord('expense','${x.id}')">ลบ</button></div>`)));
+  debtList.innerHTML = listOrEmpty(data.debt.map(x=>{
+    const left = Math.max(0,Number(x.total||0)-Number(x.paid||0)); const p = percent(x.paid,x.total);
+    return item(x.name, `ทั้งหมด ${baht(x.total)} • จ่ายแล้ว ${baht(x.paid)} • ผ่อน ${baht(x.monthly)}/เดือน • วันที่ ${x.due||'-'} <div class="progress"><div class="bar" style="width:${p}%"></div></div>`, baht(left), 'out', `<div class="mini-actions"><button class="mini" onclick="payDebt('${x.id}')">จ่ายเพิ่ม</button><button class="mini danger" onclick="removeRecord('debt','${x.id}')">ลบ</button></div>`);
+  }));
+  savingList.innerHTML = listOrEmpty(data.saving.map(x=>{
+    const p = percent(x.amount,x.target);
+    return item(x.name, `${x.type || '-'} • เป้าหมาย ${baht(x.target)} <div class="progress"><div class="bar" style="width:${p}%"></div></div>`, `${p}%`, 'in', `<div class="mini-actions"><button class="mini" onclick="addSavingMoney('${x.id}')">ออมเพิ่ม</button><button class="mini danger" onclick="removeRecord('saving','${x.id}')">ลบ</button></div>`);
+  }));
+  goldList.innerHTML = listOrEmpty(data.gold.map(x=>item(`ทองออม ${x.weight||''}`, `${x.date} • ${x.shop||'-'} • ราคาทอง ${baht(x.price)} ${x.note?'• '+x.note:''}`, baht(x.amount), 'gold', `<div class="mini-actions"><button class="mini danger" onclick="removeRecord('gold','${x.id}')">ลบ</button></div>`)));
+  goalList.innerHTML = listOrEmpty(data.goal.map(x=>{
+    const p=percent(x.current,x.target);
+    return item(x.name, `เป้าหมาย ${baht(x.target)} • มีแล้ว ${baht(x.current)} • วันที่ ${x.date||'-'} <div class="progress"><div class="bar" style="width:${p}%"></div></div>`, `${p}%`, '', `<div class="mini-actions"><button class="mini" onclick="addGoalMoney('${x.id}')">เพิ่มยอด</button><button class="mini danger" onclick="removeRecord('goal','${x.id}')">ลบ</button></div>`);
+  }));
+
+  const latest = [
+    ...data.income.map(x=>({...x,type:'รายรับ',cls:'in'})),
+    ...data.expense.map(x=>({...x,type:'รายจ่าย',cls:'out'})),
+    ...data.gold.map(x=>({...x,title:'ทองออม',type:'ทองออม',cls:'gold'}))
+  ].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,7);
+  latestList.innerHTML = listOrEmpty(latest.map(x=>item(x.title, `${x.date||'-'} • ${x.type}`, baht(x.amount), x.cls)));
+
+  drawMain([monthIncome,monthExpense,savingTotal,goldTotal,debtLeft]);
+  drawReport();
+}
+function drawMain(values){
+  const ctx = document.getElementById('mainChart');
+  if(mainChart) mainChart.destroy();
+  mainChart = new Chart(ctx,{type:'doughnut',data:{labels:['รายรับ','รายจ่าย','เงินออม','ทองออม','หนี้'],datasets:[{data:values}]},options:{plugins:{legend:{position:'bottom'}}}});
+}
+function drawReport(){
+  const ym = reportYear.value + '-' + reportMonth.value;
+  const inc = data.income.filter(x=>String(x.date||'').slice(0,7)===ym).reduce((s,x)=>s+Number(x.amount||0),0);
+  const exp = data.expense.filter(x=>String(x.date||'').slice(0,7)===ym).reduce((s,x)=>s+Number(x.amount||0),0);
+  const gold = data.gold.filter(x=>String(x.date||'').slice(0,7)===ym).reduce((s,x)=>s+Number(x.amount||0),0);
+  rIncome.innerText=baht(inc); rExpense.innerText=baht(exp); rBalance.innerText=baht(inc-exp); rGold.innerText=baht(gold);
+  const ctx = document.getElementById('reportChart');
+  if(reportChart) reportChart.destroy();
+  reportChart = new Chart(ctx,{type:'bar',data:{labels:['รายรับ','รายจ่าย','คงเหลือ','ทองออม'],datasets:[{label:'จำนวนเงิน',data:[inc,exp,inc-exp,gold]}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+}
+function saveSetting(){
+  setting = {name:setting_name.value || 'Pink Pocket', owner:setting_owner.value || ''};
+  localStorage.setItem('pinkPocketSetting',JSON.stringify(setting));
+  brandName.innerText = setting.name;
+  toast('บันทึกตั้งค่าแล้วค่ะ');
+}
+function exportCSV(type){
+  const rows = data[type] || [];
+  if(!rows.length) return alert('ยังไม่มีข้อมูลให้ Export ค่ะ');
+  const keys = Object.keys(rows[0]);
+  const csv = [keys.join(','), ...rows.map(r=>keys.map(k=>`"${String(r[k]??'').replaceAll('"','""')}"`).join(','))].join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `pink-pocket-${type}.csv`; a.click();
+}
+function clearAllDemo(){
+  if(!confirm('ล้างข้อมูลทั้งหมดในเครื่องนี้ใช่ไหมคะ?')) return;
+  localStorage.removeItem('pinkPocketData');
+  data = {income:[],expense:[],debt:[],saving:[],gold:[],goal:[]};
+  render(); toast('ล้างข้อมูลแล้วค่ะ');
+}
+function openSql(){ sqlModal.classList.add('show'); }
+function closeSql(){ sqlModal.classList.remove('show'); }
+
+init();
+</script>
+</body>
+</html>
