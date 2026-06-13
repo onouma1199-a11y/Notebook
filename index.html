@@ -498,6 +498,232 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
     font-size:26px;
   }
 }
+.detail-box{
+  text-align:left;
+  max-height:70vh;
+  overflow:auto;
+}
+
+.detail-head{
+  background:linear-gradient(135deg,#fff1f7,#fff);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.detail-total{
+  font-size:30px;
+  font-weight:1000;
+  color:var(--green);
+}
+
+.year-filter{
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  margin:12px 0;
+}
+
+.year-filter button{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--pink);
+  border-radius:999px;
+  padding:8px 14px;
+  font-weight:1000;
+}
+
+.detail-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:14px;
+  margin-bottom:10px;
+}
+
+.detail-row h4{
+  margin:0;
+  font-size:17px;
+}
+
+.detail-row p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.swal2-close{
+  color:#ff5fa2 !important;
+  font-size:34px !important;
+}
+.loan-bank-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:30px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+
+.loan-bank-top{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+
+.loan-bank-icon{
+  color:var(--pink);
+  font-size:24px;
+  margin-bottom:8px;
+}
+
+.loan-bank-top h3{
+  margin:0;
+  color:var(--text);
+  font-size:24px;
+}
+
+.loan-bank-top p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.loan-balance{
+  text-align:right;
+}
+
+.loan-balance small,
+.loan-progress-info small{
+  color:var(--muted);
+  font-weight:800;
+}
+
+.loan-balance b{
+  display:block;
+  font-size:24px;
+  color:var(--text);
+}
+
+.loan-progress-info{
+  display:flex;
+  justify-content:space-between;
+  margin:18px 0 8px;
+}
+
+.loan-progress-info b{
+  display:block;
+  color:var(--text);
+  font-size:18px;
+}
+
+.loan-pay-box{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#fff8fc;
+}
+
+.loan-pay-box h4{
+  margin:4px 0;
+  color:var(--pink);
+  font-size:22px;
+}
+
+.loan-pay-box p{
+  margin:0;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.loan-pay-box button{
+  border:1px solid var(--pink);
+  background:#fff;
+  color:var(--pink);
+  border-radius:16px;
+  padding:12px 22px;
+  font-weight:1000;
+}
+
+.loan-detail-box{
+  margin-top:14px;
+  padding:14px;
+  border-radius:22px;
+  background:#fff;
+  border:1px solid var(--line);
+}
+
+.loan-detail-box h4{
+  margin:0 0 10px;
+  color:var(--pink);
+}
+
+.loan-detail-row{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid #ffe5f0;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.loan-detail-row:last-child{
+  border-bottom:0;
+}
+
+.loan-detail-row b{
+  color:var(--text);
+}
+.loan-progress-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin:22px 0 8px;
+}
+
+.loan-progress-row small{
+  color:var(--muted);
+  font-weight:800;
+}
+
+.loan-progress-row b{
+  display:block;
+  font-size:22px;
+  color:var(--text);
+}
+
+.loan-toggle{
+  margin-top:14px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  color:var(--pink);
+  font-weight:1000;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  background:#fff8fc;
+}
+
+.loan-detail-hidden{
+  display:none;
+  margin-top:14px;
+}
+
+.loan-detail-hidden.show{
+  display:block;
+}
 </style>
 </head>
 <body>
@@ -855,7 +1081,9 @@ db.receipts = (receipts || []).map(x => ({
     shop:x.shop,
     receipt:x.receipt_url
   }));
-// สร้างหมวดจากข้อมูลจริงใน Supabase อัตโนมัติ
+
+const oldCats = db.categories || [];
+
 const incomeCats = [...new Set(db.income.map(x => x.category).filter(Boolean))]
   .map(name => ({
     id: 'income_' + name,
@@ -873,9 +1101,14 @@ const expenseCats = [...new Set(db.expense.map(x => x.category).filter(Boolean))
   }));
 
 db.categories = [
+  ...oldCats,
   ...incomeCats,
   ...expenseCats
-];
+].filter((cat, index, arr) =>
+  index === arr.findIndex(x => x.type === cat.type && x.name === cat.name)
+);
+
+save();
 
   render();
 }
@@ -1686,46 +1919,123 @@ function renderIncome(){
     `;
   }).join('');
 }
-function openIncomeCategoryDetail(categoryName){
-  const rows = db.income.filter(x => x.category === categoryName);
+function openIncomeCategoryDetail(categoryName, year = 'all'){
+  const allRows = db.income.filter(x => x.category === categoryName);
 
-  const html = rows.length
-    ? rows.map(x => `
-        <div class="item">
-          <div>
-            <h4>${x.title}</h4>
-            <p>${x.date} • ${x.category} ${x.note ? '• ' + x.note : ''}</p>
-          </div>
-          <div>
-            <div class="amount in">${money(x.amount)}</div>
-            <button class="mini danger" onclick="del('income','${x.id}'); Swal.close();">
-              ลบ
-            </button>
-          </div>
-        </div>
-      `).join('')
-    : `<div class="empty">ยังไม่มีรายการในหมวด ${categoryName}</div>`;
+  const years = [...new Set(allRows.map(x => String(x.date || '').slice(0,4)).filter(Boolean))];
+
+  const rows = year === 'all'
+    ? allRows
+    : allRows.filter(x => String(x.date || '').slice(0,4) === year);
 
   const total = sum(rows);
 
-  Swal.fire({
-    title: `รายละเอียด ${categoryName}`,
-    html: `
-      <div style="text-align:left">
-        <div class="item" style="margin-bottom:10px">
-          <div>
-            <h4>ยอดรวม ${categoryName}</h4>
-            <p>มีทั้งหมด ${rows.length} รายการ</p>
-          </div>
-          <div class="amount in">${money(total)}</div>
+  const yearButtons = `
+    <div class="year-filter">
+      <button onclick="Swal.close(); openIncomeCategoryDetail('${categoryName}','all')">ทั้งหมด</button>
+      ${years.map(y => `
+        <button onclick="Swal.close(); openIncomeCategoryDetail('${categoryName}','${y}')">${y}</button>
+      `).join('')}
+    </div>
+  `;
+
+  const html = rows.length
+    ? rows.map(x => `
+      <div class="detail-row">
+        <div>
+          <h4>${x.title || x.category}</h4>
+          <p>${x.date || '-'} ${x.note ? '• ' + x.note : ''}</p>
         </div>
+
+        <div style="text-align:right">
+          <div class="amount in">${money(x.amount)}</div>
+          <div class="actions" style="justify-content:flex-end">
+  <button class="mini" onclick="editIncome('${x.id}')">
+    แก้ไข
+  </button>
+
+  <button class="mini danger" onclick="deleteIncome('${x.id}', '${categoryName}', '${year}')">
+    ลบ
+  </button>
+</div>
+        </div>
+      </div>
+    `).join('')
+    : `<div class="empty">ยังไม่มีรายการ</div>`;
+
+  Swal.fire({
+    title: '',
+    html: `
+      <div class="detail-box">
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">รายละเอียด ${categoryName}</h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">
+            ${year === 'all' ? 'รวมทุกปี' : 'ปี ' + year} • ${rows.length} รายการ
+          </p>
+          <div class="detail-total">${money(total)}</div>
+        </div>
+
+        ${yearButtons}
+
         <div class="list">${html}</div>
       </div>
     `,
     width: 760,
-    confirmButtonText: 'ปิด',
+    showConfirmButton: false,
+    showCloseButton: true,
+    customClass: {
+      popup: 'rounded-popup'
+    }
+  });
+}
+async function deleteIncome(id, categoryName = '', year = 'all'){
+  const result = await Swal.fire({
+    title: 'ลบรายการนี้?',
+    text: 'ต้องการลบรายการรายรับนี้ใช่ไหม',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ลบ',
+    cancelButtonText: 'ยกเลิก',
     confirmButtonColor: '#ff5fa2'
   });
+
+  if(!result.isConfirmed) return;
+
+  const { error } = await supabaseClient
+    .from('money_income')
+    .delete()
+    .eq('id', id);
+
+  if(error){
+    return showError(error.message);
+  }
+
+  await loadDataFromSupabase();
+
+  if(categoryName){
+    openIncomeCategoryDetail(categoryName, year);
+  }
+
+  showSuccess('ลบรายการสำเร็จ');
+}
+function editIncome(id){
+  const row = db.income.find(x => x.id === id);
+
+  if(!row){
+    return showError('ไม่พบรายการรายรับ');
+  }
+
+  window.editIncomeId = id;
+
+  Swal.close();
+  openForm('income');
+
+  setTimeout(() => {
+    el('f_date').value = row.date || today;
+    el('f_category').value = row.category || '';
+    el('f_amount').value = row.amount || 0;
+    el('f_note').value = row.note || '';
+  }, 100);
 }
 async function deleteCategory(id){
   const result = await Swal.fire({
@@ -1759,51 +2069,70 @@ function renderExpense(){
     `;
   }).join('');
 }
-function openExpenseCategoryDetail(categoryName){
-  const rows = db.expense.filter(x => x.category === categoryName);
+function openExpenseCategoryDetail(categoryName, year = 'all'){
+  const allRows = db.expense.filter(x => x.category === categoryName);
+
+  const years = [...new Set(allRows.map(x => String(x.date || '').slice(0,4)).filter(Boolean))];
+
+  const rows = year === 'all'
+    ? allRows
+    : allRows.filter(x => String(x.date || '').slice(0,4) === year);
+
   const total = sum(rows);
+
+  const yearButtons = `
+    <div class="year-filter">
+      <button onclick="Swal.close(); openExpenseCategoryDetail('${categoryName}','all')">ทั้งหมด</button>
+      ${years.map(y => `
+        <button onclick="Swal.close(); openExpenseCategoryDetail('${categoryName}','${y}')">${y}</button>
+      `).join('')}
+    </div>
+  `;
 
   const html = rows.length
     ? rows.map(x => `
-      <div class="item">
+      <div class="detail-row">
         <div>
-          <h4>${x.title}</h4>
-          <p>${x.date} • ${x.category} ${x.note ? '• ' + x.note : ''}</p>
+          <h4>${x.title || x.category}</h4>
+          <p>${x.date || '-'} ${x.note ? '• ' + x.note : ''}</p>
+        </div>
 
-          <div class="actions">
+        <div style="text-align:right">
+          <div class="amount out">${money(x.amount)}</div>
+
+          <div class="actions" style="justify-content:flex-end">
             <button class="mini" onclick="editExpense('${x.id}'); Swal.close();">
               แก้ไข
             </button>
-
             <button class="mini danger" onclick="del('expense','${x.id}'); Swal.close();">
               ลบ
             </button>
           </div>
         </div>
-
-        <div class="amount out">${money(x.amount)}</div>
       </div>
     `).join('')
-    : `<div class="empty">ยังไม่มีรายการในหมวด ${categoryName}</div>`;
+    : `<div class="empty">ยังไม่มีรายการ</div>`;
 
   Swal.fire({
-    title: `รายละเอียด ${categoryName}`,
+    title: '',
     html: `
-      <div style="text-align:left">
-        <div class="item" style="margin-bottom:10px">
-          <div>
-            <h4>ยอดรวม ${categoryName}</h4>
-            <p>มีทั้งหมด ${rows.length} รายการ</p>
-          </div>
-          <div class="amount out">${money(total)}</div>
+      <div class="detail-box">
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">รายละเอียด ${categoryName}</h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">
+            ${year === 'all' ? 'รวมทุกปี' : 'ปี ' + year} • ${rows.length} รายการ
+          </p>
+          <div class="detail-total" style="color:var(--red)">${money(total)}</div>
         </div>
+
+        ${yearButtons}
 
         <div class="list">${html}</div>
       </div>
     `,
     width: 760,
-    confirmButtonText: 'ปิด',
-    confirmButtonColor: '#ff5fa2'
+    showConfirmButton: false,
+    showCloseButton: true
   });
 }
 function renderLoans(){
@@ -1814,37 +2143,156 @@ function renderLoans(){
     const totalInterestPaid = sum(pays, 'interest_paid');
     const totalPrincipalPaid = sum(pays, 'principal_paid');
 
-    const left = Math.max(0, Number(l.total || 0) - totalPrincipalPaid);
-    const pct = l.total ? Math.min(100, Math.round(totalPrincipalPaid / l.total * 100)) : 0;
+    const total = Number(l.total || 0);
+    const left = Math.max(0, total - totalPrincipalPaid);
+    const pct = total ? Math.min(100, Math.round((paid / total) * 100)) : 0;
 
     return `
-      <div class="card">
-        <div class="card-title">
-          <h3>${l.name}</h3>
-          <span class="badge">จ่ายทุกวันที่ ${l.due || '-'}</span>
-        </div>
+      <div class="loan-bank-card">
 
-        <p style="color:var(--muted);font-weight:800;line-height:1.7">
-          ยอดทั้งหมด ${money(l.total)}<br>
-          จ่ายแล้ว ${money(paid)}<br>
-          ดอกเบี้ย ${money(totalInterestPaid)}<br>
-          เงินต้น ${money(totalPrincipalPaid)}<br>
-          คงเหลือ ${money(left)}
-        </p>
+  <div class="loan-bank-top">
+    <div>
+      <i class="fa-solid fa-house loan-bank-icon"></i>
+      <h3>${l.name}</h3>
+      <p>${l.note || '-'}</p>
+    </div>
 
-        <div class="progress">
-          <div class="bar" style="width:${pct}%"></div>
-        </div>
+    <div class="loan-balance">
+      <small>ยอดหนี้คงเหลือ</small>
+      <b>${money(left)}</b>
+    </div>
+  </div>
 
-        <div class="actions">
-          <button class="mini" onclick="openForm('loanPay','${l.id}')">+ บันทึกจ่ายเดือนนี้</button>
-          <button class="mini" onclick="openLoanPaymentsDetail('${l.id}')">ดูงวดที่จ่ายแล้ว</button>
-          <button class="mini" onclick="editLoan('${l.id}')">แก้ไข</button>
-          <button class="mini danger" onclick="delLoan('${l.id}')">ลบสัญญา</button>
-        </div>
+  <div class="loan-progress-row">
+    <div>
+      <small>ยอดผ่อนที่ชำระแล้ว</small>
+      <b>${money(paid)}</b>
+    </div>
+
+    <div style="text-align:right">
+      <small>เงินต้นทั้งหมด</small>
+      <b>${money(total)}</b>
+    </div>
+  </div>
+
+  <div class="progress">
+    <div class="bar" style="width:${pct}%"></div>
+  </div>
+
+  <div class="loan-toggle" onclick="toggleLoanDetail('${l.id}')">
+    <span>ดูรายละเอียด</span>
+    <i id="loanArrow_${l.id}" class="fa-solid fa-chevron-down"></i>
+  </div>
+
+  <div id="loanDetail_${l.id}" class="loan-detail-hidden">
+
+    <div class="loan-pay-box">
+      <div>
+        <small>รายการที่ต้องชำระ</small>
+        <h4>${money(l.monthly || 0)}</h4>
+        <p>กำหนดชำระวันที่ ${l.due || '-'}</p>
       </div>
+
+      <button onclick="openForm('loanPay','${l.id}')">จ่าย</button>
+    </div>
+
+    <div class="loan-detail-box">
+      <h4>รายละเอียด</h4>
+
+      <div class="loan-detail-row">
+        <span>ยอดทั้งหมด</span>
+        <b>${money(total)}</b>
+      </div>
+
+      <div class="loan-detail-row">
+        <span>จ่ายแล้ว</span>
+        <b>${money(paid)}</b>
+      </div>
+
+      <div class="loan-detail-row">
+        <span>เงินต้นที่จ่ายแล้ว</span>
+        <b>${money(totalPrincipalPaid)}</b>
+      </div>
+
+      <div class="loan-detail-row">
+        <span>ดอกเบี้ยที่จ่ายแล้ว</span>
+        <b>${money(totalInterestPaid)}</b>
+      </div>
+
+      <div class="loan-detail-row">
+        <span>คงเหลือ</span>
+        <b>${money(left)}</b>
+      </div>
+    </div>
+
+    <div class="loan-actions">
+      <button class="mini" onclick="openLoanPaymentsByYear('${l.id}')">ดูแบบรายปี</button>
+      <button class="mini" onclick="editLoan('${l.id}')">แก้ไข</button>
+      <button class="mini danger" onclick="delLoan('${l.id}')">ลบสัญญา</button>
+    </div>
+
+  </div>
+
+</div>
     `;
   }).join('') : empty('ยังไม่มีรายการผ่อนบ้าน/หนี้ กด + เพิ่มสัญญาก่อนได้เลยค่ะ');
+}
+
+function toggleLoanDetail(id){
+  const box = document.getElementById('loanDetail_' + id);
+  const arrow = document.getElementById('loanArrow_' + id);
+
+  if(!box) return;
+
+  box.classList.toggle('show');
+
+  if(box.classList.contains('show')){
+    arrow.className = 'fa-solid fa-chevron-up';
+  }else{
+    arrow.className = 'fa-solid fa-chevron-down';
+  }
+}
+function openLoanPaymentsByYear(loanId, year = 'all'){
+  const loan = db.loans.find(x => x.id === loanId);
+  const allPays = db.loanPayments.filter(p => p.loan_id === loanId);
+
+  const years = [...new Set(allPays.map(p => String(p.date || '').slice(0,4)).filter(Boolean))];
+
+  const pays = year === 'all'
+    ? allPays
+    : allPays.filter(p => String(p.date || '').slice(0,4) === year);
+
+  const html = pays.length ? pays.map(p => `
+    <div class="detail-row">
+      <div>
+        <b>งวดวันที่ ${p.date}</b><br>
+        <small>
+          เงินต้น ${money(p.principal_paid)}<br>
+          ดอกเบี้ย ${money(p.interest_paid)}
+        </small>
+      </div>
+      <b>${money(p.amount)}</b>
+    </div>
+  `).join('') : `<div class="empty">ยังไม่มีรายการในปีนี้</div>`;
+
+  Swal.fire({
+    title: `ประวัติชำระ ${loan?.name || ''}`,
+    html: `
+      <div class="year-filter">
+        <button onclick="Swal.close(); openLoanPaymentsByYear('${loanId}','all')">ทั้งหมด</button>
+        ${years.map(y => `
+          <button onclick="Swal.close(); openLoanPaymentsByYear('${loanId}','${y}')">${y}</button>
+        `).join('')}
+      </div>
+
+      <div class="list" style="text-align:left">
+        ${html}
+      </div>
+    `,
+    showCloseButton:true,
+    showConfirmButton:false,
+    width:760
+  });
 }
 function openLoanPaymentsDetail(loanId){
   const loan = db.loans.find(x => x.id === loanId);
