@@ -684,27 +684,115 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
 .loan-detail-row b{
   color:var(--text);
 }
-.loan-progress-row{
+.loan-slider{
   display:flex;
-  justify-content:space-between;
-  gap:12px;
-  margin:22px 0 8px;
+  gap:14px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding:4px 4px 16px;
 }
 
-.loan-progress-row small{
+.loan-slider::-webkit-scrollbar{
+  display:none;
+}
+
+.compact-loan{
+  min-width:88%;
+  scroll-snap-align:start;
+  padding:18px;
+}
+
+.loan-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+
+.loan-icon{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#fff1f7;
+  display:grid;
+  place-items:center;
+  color:var(--pink);
+  font-size:24px;
+  margin-bottom:8px;
+}
+
+.loan-card-head h3{
+  margin:0;
+  color:var(--text);
+  font-size:28px;
+}
+
+.loan-more{
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:22px;
+}
+
+.loan-main-money{
+  margin-top:16px;
+}
+
+.loan-main-money small{
+  color:var(--muted);
+  font-weight:900;
+}
+
+.loan-main-money b{
+  display:block;
+  font-size:34px;
+  color:var(--text);
+}
+
+.loan-main-money span{
+  display:inline-block;
+  margin-top:6px;
+  background:#ffe6f1;
+  color:var(--pink);
+  border-radius:999px;
+  padding:5px 12px;
+  font-weight:1000;
+}
+
+.loan-progress{
+  margin:14px 0;
+}
+
+.loan-mini-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-top:1px solid #ffe5f0;
+  border-bottom:1px solid #ffe5f0;
+  margin:14px 0;
+}
+
+.loan-mini-grid div{
+  padding:12px 8px;
+}
+
+.loan-mini-grid div:first-child{
+  border-right:1px solid #ffe5f0;
+}
+
+.loan-mini-grid small{
   color:var(--muted);
   font-weight:800;
 }
 
-.loan-progress-row b{
+.loan-mini-grid b{
   display:block;
-  font-size:22px;
+  margin-top:4px;
+  font-size:18px;
   color:var(--text);
 }
 
 .loan-toggle{
-  margin-top:14px;
-  padding:12px 14px;
+  margin-top:10px;
+  padding:13px 14px;
   border:1px solid var(--line);
   border-radius:18px;
   color:var(--pink);
@@ -712,7 +800,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
   display:flex;
   justify-content:space-between;
   align-items:center;
-  cursor:pointer;
   background:#fff8fc;
 }
 
@@ -724,6 +811,198 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
 .loan-detail-hidden.show{
   display:block;
 }
+
+.loan-pay-btn{
+  width:100%;
+  margin-top:12px;
+}
+
+.loan-actions.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.history-popup{
+  border-radius:30px !important;
+  padding:0 !important;
+}
+
+.history-page{
+  text-align:left;
+  padding:22px;
+  background:#fff;
+  max-height:88vh;
+  overflow:auto;
+}
+
+.history-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.history-top h2{
+  margin:0;
+  color:var(--text);
+  font-size:24px;
+}
+
+.history-back{
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:50%;
+  background:#fff1f7;
+  color:var(--pink);
+  font-size:20px;
+}
+
+.history-tabs{
+  display:flex;
+  gap:10px;
+  overflow:auto;
+  margin-bottom:16px;
+}
+
+.history-tabs button{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  border-radius:999px;
+  padding:10px 20px;
+  font-weight:1000;
+}
+
+.history-tabs button.active{
+  background:linear-gradient(135deg,var(--pink),var(--pink2));
+  color:#fff;
+  border:0;
+}
+
+.history-summary{
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:16px;
+  background:linear-gradient(135deg,#fff1f7,#fff);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.history-summary small{
+  color:var(--muted);
+  font-weight:800;
+}
+
+.history-summary b{
+  display:block;
+  font-size:30px;
+  color:var(--text);
+}
+
+.history-summary p{
+  margin:6px 0;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.dot{
+  display:inline-block;
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  margin-right:8px;
+}
+
+.dot.pink{background:var(--pink)}
+.dot.purple{background:var(--purple)}
+
+.history-year-card{
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:16px;
+  margin-bottom:14px;
+  background:#fff;
+}
+
+.history-year-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.history-year-head > b{
+  font-size:26px;
+  color:var(--text);
+}
+
+.history-year-head small{
+  color:var(--muted);
+  font-weight:800;
+}
+
+.history-year-head strong{
+  display:block;
+  color:var(--pink);
+  font-size:22px;
+}
+
+.history-item{
+  display:grid;
+  grid-template-columns:64px 1fr auto;
+  gap:12px;
+  align-items:center;
+  border:1px solid #f3e6ec;
+  border-radius:18px;
+  padding:12px;
+  margin-bottom:10px;
+}
+
+.history-date{
+  width:54px;
+  height:62px;
+  border-radius:14px;
+  background:#fff1f7;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.history-date span{
+  color:var(--pink);
+  font-weight:1000;
+  font-size:13px;
+}
+
+.history-date b{
+  font-size:24px;
+  color:var(--text);
+}
+
+.history-info b{
+  color:var(--text);
+  font-size:16px;
+}
+
+.history-info p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-weight:800;
+  font-size:13px;
+}
+
+.history-money{
+  color:var(--pink);
+  font-weight:1000;
+  font-size:18px;
+}
+.year-box{display:none}
+.year-box.show{display:block}
+
 </style>
 </head>
 <body>
@@ -815,7 +1094,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 
 <section id="homepay" class="section">
   <div class="card">
     <div class="card-title">
-      <h3><i class="fa-solid fa-house title-icon"></i> ผ่อนบ้าน / หนี้ผ่อน</h3>
+      <h3><i class="fa-solid fa-house title-icon"></i>สินเชื่อบ้าน</h3>
       <button class="btn" onclick="openForm('loan')">+ เพิ่มสัญญา</button>
     </div>
     <div class="list" id="loanList"></div>
@@ -1157,13 +1436,13 @@ function pageName(id){
     ],
 
     homepay:[
-      '<i class="fa-solid fa-house" style="color:#ff5fa2"></i> ผ่อนบ้าน / หนี้ผ่อน',
-      'สร้างรายการผ่อน แล้วบันทึกการจ่ายแต่ละเดือนข้างใน'
+      '<i class="fa-solid fa-house" style="color:#ff5fa2"></i>สินเชื่อ',
+      'สร้างรายการผ่อน แล้วบันทึกการจ่าย'
     ],
 
     saving:[
       '<i class="fa-solid fa-piggy-bank" style="color:#ff5fa2"></i> เงินออม',
-      'ตั้งเป้าหมายเงินออมและเพิ่มยอดได้เรื่อยๆ'
+      'ตั้งเป้าหมายเงินออม'
     ],
 
     gold:[
@@ -1269,22 +1548,27 @@ if(type==='loan'){
   </div>`;
 }
 
- if(type==='loanPay'){
+if(type==='loanPay'){
   const loan = db.loans.find(x=>x.id===refId);
+  const pay = window.editLoanPaymentId
+    ? db.loanPayments.find(x => x.id === window.editLoanPaymentId)
+    : null;
+
   h = `<div class="form">
     <input type="hidden" id="f_loan_id" value="${refId}">
     <input value="${loan ? loan.name : ''}" readonly>
 
-    <input type="date" id="f_date" value="${today}">
-    <input type="number" id="f_amount" placeholder="ยอดจ่ายรวม" value="${loan ? loan.monthly : ''}">
-    <input type="number" id="f_principal_paid" placeholder="เงินต้นที่ตัดได้">
-    <input type="number" id="f_interest_paid" placeholder="ดอกเบี้ยงวดนี้">
-    <input type="number" id="f_balance_after" placeholder="เงินต้นคงเหลือหลังจ่าย">
+    <input type="date" id="f_date" value="${pay?.date || today}">
+    <input type="number" id="f_amount" placeholder="ยอดจ่ายรวม" value="${pay?.amount || loan?.monthly || ''}">
+    <input type="number" id="f_principal_paid" placeholder="เงินต้นที่ตัดได้" value="${pay?.principal_paid || ''}">
+    <input type="number" id="f_interest_paid" placeholder="ดอกเบี้ยงวดนี้" value="${pay?.interest_paid || ''}">
+    <input type="number" id="f_balance_after" placeholder="เงินต้นคงเหลือหลังจ่าย" value="${pay?.balance_after || ''}">
 
-    <textarea id="f_note" placeholder="หมายเหตุ เช่น งวดที่ 1 / จากบิลธนาคาร"></textarea>
-    <input type="file" id="f_receipt" accept="image/*">
+    <textarea id="f_note" placeholder="หมายเหตุ">${pay?.note || ''}</textarea>
 
-    <button class="btn" onclick="addLoanPayment()">บันทึกจ่ายค่างวด</button>
+    <button class="btn" onclick="addLoanPayment()">
+      ${pay ? 'บันทึกการแก้ไขงวด' : 'บันทึกจ่ายค่างวด'}
+    </button>
   </div>`;
 }
   if(type==='saving'){
@@ -1652,27 +1936,63 @@ async function addLoanPayment() {
     return showError('กรอกยอดจ่ายรวมก่อนค่ะ');
   }
 
-  const { error } = await supabaseClient
-    .from('money_loan_payments')
-    .insert({
-      loan_id: loanId,
-      payment_date: val('f_date'),
-      amount: num('f_amount'),
-      principal_paid: num('f_principal_paid'),
-      interest_paid: num('f_interest_paid'),
-      balance_after: num('f_balance_after'),
-      note: val('f_note')
-    });
+  const payload = {
+    loan_id: loanId,
+    payment_date: val('f_date'),
+    amount: num('f_amount'),
+    principal_paid: num('f_principal_paid'),
+    interest_paid: num('f_interest_paid'),
+    balance_after: num('f_balance_after'),
+    note: val('f_note')
+  };
 
-  if (error) {
-    console.error(error);
-    return showError('บันทึกค่างวดไม่สำเร็จ : ' + error.message);
+  let result;
+
+  if (window.editLoanPaymentId) {
+    result = await supabaseClient
+      .from('money_loan_payments')
+      .update(payload)
+      .eq('id', window.editLoanPaymentId);
+  } else {
+    result = await supabaseClient
+      .from('money_loan_payments')
+      .insert(payload);
   }
 
+  if (result.error) {
+    console.error(result.error);
+    return showError('บันทึกค่างวดไม่สำเร็จ : ' + result.error.message);
+  }
+
+  window.editLoanPaymentId = null;
+
   closeForm();
-  showSuccess('บันทึกค่างวดสำเร็จ ');
+  showSuccess('บันทึกค่างวดสำเร็จ');
   await loadDataFromSupabase();
   go('homepay');
+}
+
+function editLoanPayment(paymentId){
+  const pay = db.loanPayments.find(x => x.id === paymentId);
+
+  if(!pay){
+    return showError('ไม่พบข้อมูลงวดนี้');
+  }
+
+  window.editLoanPaymentId = paymentId;
+
+  Swal.close();
+
+  openForm('loanPay', pay.loan_id);
+
+  setTimeout(() => {
+    el('f_date').value = pay.date || today;
+    el('f_amount').value = pay.amount || 0;
+    el('f_principal_paid').value = pay.principal_paid || 0;
+    el('f_interest_paid').value = pay.interest_paid || 0;
+    el('f_balance_after').value = pay.balance_after || 0;
+    el('f_note').value = pay.note || '';
+  }, 100);
 }
 
 async function addSaving() {
@@ -1922,7 +2242,7 @@ function renderIncome(){
 function openIncomeCategoryDetail(categoryName, year = 'all'){
   const allRows = db.income.filter(x => x.category === categoryName);
 
-  const years = [...new Set(allRows.map(x => String(x.date || '').slice(0,4)).filter(Boolean))];
+  const years = [...new Set(allPays.map(p => String(p.date || '').slice(0,4)).filter(Boolean))].sort((a,b) => Number(b) - Number(a));
 
   const rows = year === 'all'
     ? allRows
@@ -2136,106 +2456,116 @@ function openExpenseCategoryDetail(categoryName, year = 'all'){
   });
 }
 function renderLoans(){
-  loanList.innerHTML = db.loans.length ? db.loans.map(l=>{
-    const pays = db.loanPayments.filter(p => p.loan_id === l.id);
+  if(!db.loans.length){
+    loanList.innerHTML = empty('ยังไม่มีรายการผ่อนบ้าน/หนี้ กด + เพิ่มสัญญาก่อนได้เลยค่ะ');
+    return;
+  }
 
-    const paid = sum(pays);
-    const totalInterestPaid = sum(pays, 'interest_paid');
-    const totalPrincipalPaid = sum(pays, 'principal_paid');
+  loanList.innerHTML = `
+    <div class="loan-slider">
+      ${db.loans.map(l=>{
+        const pays = db.loanPayments.filter(p => p.loan_id === l.id);
 
-    const total = Number(l.total || 0);
-    const left = Math.max(0, total - totalPrincipalPaid);
-    const pct = total ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+        const total = Number(l.total || l.principal || 0);
+        const paidTotal = sum(pays, 'amount');
+        const principalPaid = sum(pays, 'principal_paid');
+        const interestPaid = sum(pays, 'interest_paid');
 
-    return `
-      <div class="loan-bank-card">
+        // ✅ ยอดคงเหลือที่ถูกต้อง ต้องเอาเงินต้นทั้งหมด - เงินต้นที่จ่ายแล้ว
+        const left = Math.max(0, total - principalPaid);
 
-  <div class="loan-bank-top">
-    <div>
-      <i class="fa-solid fa-house loan-bank-icon"></i>
-      <h3>${l.name}</h3>
-      <p>${l.note || '-'}</p>
+        // ✅ เปอร์เซ็นต์จ่ายจริง ดูจากเงินต้นที่จ่ายแล้ว
+        const paidPct = total ? Math.min(100, Math.round((principalPaid / total) * 100)) : 0;
+        const leftPct = 100 - paidPct;
+
+        return `
+          <div class="loan-bank-card compact-loan">
+
+            <div class="loan-card-head">
+              <div>
+                <div class="loan-icon"><i class="fa-solid fa-house"></i></div>
+                <h3>${l.name}</h3>
+              </div>
+
+              <button class="loan-more" onclick="openLoanMenu('${l.id}')">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+            </div>
+
+            <div class="loan-main-money">
+              <small>ยอดคงเหลือ</small>
+              <b>${money(left)}</b>
+              <span>คงเหลือ ${leftPct}%</span>
+            </div>
+
+            <div class="progress loan-progress">
+              <div class="bar" style="width:${paidPct}%"></div>
+            </div>
+
+            <div class="loan-mini-grid">
+              <div>
+                <small>งวดถัดไป</small>
+                <b>${money(l.monthly || 0)}</b>
+              </div>
+
+              <div>
+                <small>ครบกำหนด</small>
+                <b>วันที่ ${l.due || '-'}</b>
+              </div>
+            </div>
+
+            <div class="loan-toggle" onclick="toggleLoanDetail('${l.id}')">
+              <span>รายละเอียดสัญญา</span>
+              <i id="loanArrow_${l.id}" class="fa-solid fa-chevron-down"></i>
+            </div>
+
+            <div id="loanDetail_${l.id}" class="loan-detail-hidden">
+              <div class="loan-detail-box">
+                <div class="loan-detail-row">
+                  <span>ยอดกู้ทั้งหมด</span>
+                  <b>${money(total)}</b>
+                </div>
+
+                <div class="loan-detail-row">
+                  <span>จ่ายแล้ว</span>
+                  <b>${money(paidTotal)}</b>
+                </div>
+
+                <div class="loan-detail-row">
+                  <span>เงินต้นที่จ่ายแล้ว</span>
+                  <b>${money(principalPaid)}</b>
+                </div>
+
+                <div class="loan-detail-row">
+                  <span>ดอกเบี้ยที่จ่ายแล้ว</span>
+                  <b>${money(interestPaid)}</b>
+                </div>
+
+                <div class="loan-detail-row">
+                  <span>ยอดคงเหลือ</span>
+                  <b>${money(left)}</b>
+                </div>
+              </div>
+
+              <button class="btn loan-pay-btn" onclick="openForm('loanPay','${l.id}')">
+                จ่ายงวดนี้
+              </button>
+
+              <div class="loan-actions two">
+              <button class="mini" onclick="openLoanPaymentsDetail('${l.id}','all')">
+  		ดูรายละเอียดรายปี
+		</button>
+                <button class="mini" onclick="editLoan('${l.id}')">
+                  แก้ไขสัญญา
+                </button>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('')}
     </div>
-
-    <div class="loan-balance">
-      <small>ยอดหนี้คงเหลือ</small>
-      <b>${money(left)}</b>
-    </div>
-  </div>
-
-  <div class="loan-progress-row">
-    <div>
-      <small>ยอดผ่อนที่ชำระแล้ว</small>
-      <b>${money(paid)}</b>
-    </div>
-
-    <div style="text-align:right">
-      <small>เงินต้นทั้งหมด</small>
-      <b>${money(total)}</b>
-    </div>
-  </div>
-
-  <div class="progress">
-    <div class="bar" style="width:${pct}%"></div>
-  </div>
-
-  <div class="loan-toggle" onclick="toggleLoanDetail('${l.id}')">
-    <span>ดูรายละเอียด</span>
-    <i id="loanArrow_${l.id}" class="fa-solid fa-chevron-down"></i>
-  </div>
-
-  <div id="loanDetail_${l.id}" class="loan-detail-hidden">
-
-    <div class="loan-pay-box">
-      <div>
-        <small>รายการที่ต้องชำระ</small>
-        <h4>${money(l.monthly || 0)}</h4>
-        <p>กำหนดชำระวันที่ ${l.due || '-'}</p>
-      </div>
-
-      <button onclick="openForm('loanPay','${l.id}')">จ่าย</button>
-    </div>
-
-    <div class="loan-detail-box">
-      <h4>รายละเอียด</h4>
-
-      <div class="loan-detail-row">
-        <span>ยอดทั้งหมด</span>
-        <b>${money(total)}</b>
-      </div>
-
-      <div class="loan-detail-row">
-        <span>จ่ายแล้ว</span>
-        <b>${money(paid)}</b>
-      </div>
-
-      <div class="loan-detail-row">
-        <span>เงินต้นที่จ่ายแล้ว</span>
-        <b>${money(totalPrincipalPaid)}</b>
-      </div>
-
-      <div class="loan-detail-row">
-        <span>ดอกเบี้ยที่จ่ายแล้ว</span>
-        <b>${money(totalInterestPaid)}</b>
-      </div>
-
-      <div class="loan-detail-row">
-        <span>คงเหลือ</span>
-        <b>${money(left)}</b>
-      </div>
-    </div>
-
-    <div class="loan-actions">
-      <button class="mini" onclick="openLoanPaymentsByYear('${l.id}')">ดูแบบรายปี</button>
-      <button class="mini" onclick="editLoan('${l.id}')">แก้ไข</button>
-      <button class="mini danger" onclick="delLoan('${l.id}')">ลบสัญญา</button>
-    </div>
-
-  </div>
-
-</div>
-    `;
-  }).join('') : empty('ยังไม่มีรายการผ่อนบ้าน/หนี้ กด + เพิ่มสัญญาก่อนได้เลยค่ะ');
+  `;
 }
 
 function toggleLoanDetail(id){
@@ -2246,47 +2576,128 @@ function toggleLoanDetail(id){
 
   box.classList.toggle('show');
 
-  if(box.classList.contains('show')){
-    arrow.className = 'fa-solid fa-chevron-up';
-  }else{
-    arrow.className = 'fa-solid fa-chevron-down';
-  }
+  arrow.className = box.classList.contains('show')
+    ? 'fa-solid fa-chevron-up'
+    : 'fa-solid fa-chevron-down';
 }
+
 function openLoanPaymentsByYear(loanId, year = 'all'){
   const loan = db.loans.find(x => x.id === loanId);
-  const allPays = db.loanPayments.filter(p => p.loan_id === loanId);
+  const allPays = db.loanPayments
+    .filter(p => p.loan_id === loanId)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
 
-  const years = [...new Set(allPays.map(p => String(p.date || '').slice(0,4)).filter(Boolean))];
+  const years = [...new Set(
+    allPays.map(p => String(p.date || '').slice(0,4)).filter(Boolean)
+  )].sort((a,b) => b.localeCompare(a));
 
   const pays = year === 'all'
     ? allPays
     : allPays.filter(p => String(p.date || '').slice(0,4) === year);
 
-  const html = pays.length ? pays.map(p => `
-    <div class="detail-row">
-      <div>
-        <b>งวดวันที่ ${p.date}</b><br>
-        <small>
-          เงินต้น ${money(p.principal_paid)}<br>
-          ดอกเบี้ย ${money(p.interest_paid)}
-        </small>
+  const totalPaid = sum(pays, 'amount');
+  const totalPrincipal = sum(pays, 'principal_paid');
+  const totalInterest = sum(pays, 'interest_paid');
+
+  const monthTH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+ const html = pays.length ? pays.map(p => {
+  const d = new Date(p.date);
+  const day = p.date ? String(d.getDate()).padStart(2,'0') : '-';
+  const monthTH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const month = p.date ? monthTH[d.getMonth()] : '-';
+
+  return `
+    <button class="detail-row" type="button" onclick="editLoanPayment('${p.id}')" style="width:100%;cursor:pointer;text-align:left">
+      <div style="display:flex;gap:12px;align-items:center;flex:1">
+        <div style="
+          width:54px;height:62px;border-radius:16px;background:#fff1f7;
+          display:flex;flex-direction:column;align-items:center;justify-content:center;
+          color:var(--pink);font-weight:1000;flex-shrink:0;
+        ">
+          <small style="font-size:12px">${month}</small>
+          <b style="font-size:22px">${day}</b>
+        </div>
+
+        <div>
+          <b>งวดวันที่ ${p.date || '-'}</b><br>
+          <small>
+            เงินต้น ${money(p.principal_paid)} · ดอกเบี้ย ${money(p.interest_paid)}
+          </small>
+        </div>
       </div>
-      <b>${money(p.amount)}</b>
-    </div>
-  `).join('') : `<div class="empty">ยังไม่มีรายการในปีนี้</div>`;
+
+      <div style="text-align:right">
+        <b style="color:var(--pink);font-size:18px">${money(p.amount)}</b><br>
+        <small style="color:var(--muted)">แตะเพื่อแก้ไข</small>
+      </div>
+    </button>
+  `;
+}).join('') : `<div class="empty">ยังไม่มีรายการในปีนี้</div>`;
 
   Swal.fire({
-    title: `ประวัติชำระ ${loan?.name || ''}`,
+    title: '',
     html: `
-      <div class="year-filter">
-        <button onclick="Swal.close(); openLoanPaymentsByYear('${loanId}','all')">ทั้งหมด</button>
-        ${years.map(y => `
-          <button onclick="Swal.close(); openLoanPaymentsByYear('${loanId}','${y}')">${y}</button>
-        `).join('')}
-      </div>
+      <div class="detail-box">
 
-      <div class="list" style="text-align:left">
-        ${html}
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="Swal.close()" style="
+            width:42px;
+            height:42px;
+            border:0;
+            border-radius:50%;
+            background:#fff1f7;
+            color:var(--pink);
+            font-size:22px;
+            font-weight:1000;
+          ">‹</button>
+
+          <h2 style="margin:0;color:var(--text);font-size:24px">
+            ประวัติชำระ ${loan?.name || ''}
+          </h2>
+        </div>
+
+        <div class="year-filter">
+          <button onclick="Swal.close(); openLoanPaymentsByYear('${loanId}','all')">ทั้งหมด</button>
+          ${years.map(y => `
+            <button onclick="Swal.close(); openLoanPaymentsByYear('${loanId}','${y}')">${y}</button>
+          `).join('')}
+        </div>
+
+        <div class="detail-head">
+          <p style="margin:0;color:var(--muted);font-weight:900">
+            ยอดชำระรวมทั้งหมด
+          </p>
+
+          <div class="detail-total" style="color:var(--pink)">
+            ${money(totalPaid)}
+          </div>
+
+          <p style="margin:6px 0 0;color:var(--muted);font-weight:800">
+            ${pays.length} รายการ
+          </p>
+
+          <div style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:10px;
+            margin-top:12px;
+          ">
+            <div>
+              <small style="color:var(--muted);font-weight:900">เงินต้น</small>
+              <b style="display:block">${money(totalPrincipal)}</b>
+            </div>
+            <div>
+              <small style="color:var(--muted);font-weight:900">ดอกเบี้ย</small>
+              <b style="display:block">${money(totalInterest)}</b>
+            </div>
+          </div>
+        </div>
+
+        <div class="list">
+          ${html}
+        </div>
+
       </div>
     `,
     showCloseButton:true,
@@ -2294,36 +2705,145 @@ function openLoanPaymentsByYear(loanId, year = 'all'){
     width:760
   });
 }
-function openLoanPaymentsDetail(loanId){
-  const loan = db.loans.find(x => x.id === loanId);
-  const pays = db.loanPayments.filter(p => p.loan_id === loanId);
 
-  const html = pays.length ? pays.map(p => `
-    <div class="item">
-      <div>
-        <h4>งวดวันที่ ${p.date}</h4>
-        <p style="line-height:1.7">
-          ยอดจ่ายรวม: ${money(p.amount)}<br>
-          เงินต้น: ${money(p.principal_paid)}<br>
-          ดอกเบี้ย: ${money(p.interest_paid)}<br>
-          เงินต้นคงเหลือ: ${money(p.balance_after)}<br>
-          ${p.note ? 'หมายเหตุ: ' + p.note : ''}
-        </p>
-        <button class="mini danger" onclick="del('loanPayments','${p.id}'); Swal.close();">
-          ลบงวดนี้
-        </button>
+function openLoanPaymentsDetail(loanId, year = 'all'){
+  const loan = db.loans.find(x => x.id === loanId);
+
+  const allPays = db.loanPayments
+    .filter(p => p.loan_id === loanId)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  const years = [...new Set(
+    allPays.map(p => String(p.date || '').slice(0,4)).filter(Boolean)
+  )].sort((a,b) => Number(b) - Number(a));
+
+  const showYears = year === 'all' ? years : [year];
+
+  const body = showYears.map(y => {
+    const list = allPays.filter(p => String(p.date || '').slice(0,4) === y);
+    const yearTotal = sum(list, 'amount');
+
+    return `
+      <div class="history-year-card">
+        <div class="history-year-head" onclick="toggleYearBox('${y}')" style="cursor:pointer">
+          <b>${y}</b>
+          <div>
+            <small>ยอดรวมปี ${y}</small>
+            <strong>${money(yearTotal)}</strong>
+            <i id="yearArrow_${y}" class="fa-solid fa-chevron-down" style="margin-left:8px;color:var(--pink)"></i>
+          </div>
+        </div>
+
+        <div id="yearBox_${y}" class="year-box">
+          ${list.map(p => {
+            const d = new Date(p.date);
+            const day = p.date ? String(d.getDate()).padStart(2,'0') : '-';
+            const month = p.date ? d.toLocaleDateString('th-TH',{month:'short'}) : '-';
+
+            return `
+              <div class="history-item" onclick="openLoanPaymentAction('${p.id}')" style="cursor:pointer">
+                <div class="history-date">
+                  <span>${month}</span>
+                  <b>${day}</b>
+                </div>
+
+                <div class="history-info">
+                  <b>งวดวันที่ ${p.date || '-'}</b>
+                  <p>เงินต้น ${money(p.principal_paid)} • ดอกเบี้ย ${money(p.interest_paid)}</p>
+                </div>
+
+                <div class="history-money">
+                  ${money(p.amount)}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
-    </div>
-  `).join('') : `<div class="empty">ยังไม่มีประวัติการจ่ายค่างวด</div>`;
+    `;
+  }).join('');
+
+  const pays = year === 'all' ? allPays : allPays.filter(p => String(p.date || '').slice(0,4) === year);
 
   Swal.fire({
-    title: `รายละเอียดงวด ${loan?.name || ''}`,
-    html: `<div class="list" style="text-align:left">${html}</div>`,
+    title: '',
+    html: `
+      <div class="history-page">
+        <div class="history-top">
+          <button class="history-back" onclick="Swal.close()">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <h2>ประวัติชำระ ${loan?.name || ''}</h2>
+        </div>
+
+        <div class="history-tabs">
+          <button class="${year === 'all' ? 'active' : ''}" onclick="Swal.close(); openLoanPaymentsDetail('${loanId}','all')">ทั้งหมด</button>
+          ${years.map(y => `
+            <button class="${year === y ? 'active' : ''}" onclick="Swal.close(); openLoanPaymentsDetail('${loanId}','${y}')">${y}</button>
+          `).join('')}
+        </div>
+
+        <div class="history-summary">
+          <div>
+            <small>ยอดชำระรวมทั้งหมด</small>
+            <b>${money(sum(pays, 'amount'))}</b>
+            <p>${pays.length} รายการ</p>
+          </div>
+
+          <div>
+            <p><span class="dot pink"></span> เงินต้น <b>${money(sum(pays, 'principal_paid'))}</b></p>
+            <p><span class="dot purple"></span> ดอกเบี้ย <b>${money(sum(pays, 'interest_paid'))}</b></p>
+          </div>
+        </div>
+
+        ${body || '<div class="empty">ยังไม่มีประวัติการชำระ</div>'}
+      </div>
+    `,
     width: 760,
-    confirmButtonText: 'ปิด',
-    confirmButtonColor: '#ff5fa2'
+    padding: 0,
+    showConfirmButton: false,
+    showCloseButton: false,
+    customClass: { popup: 'history-popup' }
   });
 }
+
+function toggleYearBox(year){
+  const box = document.getElementById('yearBox_' + year);
+  const arrow = document.getElementById('yearArrow_' + year);
+
+  if(!box) return;
+
+  box.classList.toggle('show');
+
+  if(arrow){
+    arrow.className = box.classList.contains('show')
+      ? 'fa-solid fa-chevron-up'
+      : 'fa-solid fa-chevron-down';
+  }
+}
+
+async function openLoanPaymentAction(paymentId){
+  const result = await Swal.fire({
+    title: 'จัดการงวดนี้',
+    showCancelButton: true,
+    showDenyButton: true,
+    confirmButtonText: 'แก้ไข',
+    denyButtonText: 'ลบ',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#ff5fa2',
+    denyButtonColor: '#ff6b81'
+  });
+
+  if(result.isConfirmed){
+    editLoanPayment(paymentId);
+  }
+
+  if(result.isDenied){
+    await del('loanPayments', paymentId);
+    Swal.close();
+  }
+}
+
 function renderSaving(){
   savingList.innerHTML = db.saving.length ? db.saving.map(x=>{
     const pct = x.target ? Math.min(100,Math.round(x.amount/x.target*100)) : 0;
