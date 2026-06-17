@@ -2097,10 +2097,15 @@ async function loadDataFromSupabase(){
     .select('*')
     .order('payment_date', { ascending:false });
 
-  const { data: savings } = await supabaseClient
-    .from('money_savings')
-    .select('*')
-    .order('created_at', { ascending:false });
+ const { data: savings } = await supabaseClient
+  .from('money_savings')
+  .select('*')
+  .order('created_at', { ascending:false });
+
+const { data: savingTx } = await supabaseClient
+  .from('money_saving_transactions')
+  .select('*')
+  .order('tx_date', { ascending:false });
 
   const { data: gold } = await supabaseClient
     .from('money_gold')
@@ -2229,6 +2234,8 @@ db.receipts = (receipts || []).map(x => ({
     note:x.note
   }));
 
+db.savingTx = savingTx || [];
+
   db.gold = (gold || []).map(x => ({
     id:x.id,
     date:x.gold_date,
@@ -2273,7 +2280,7 @@ const today = new Date().toISOString().slice(0,10);
 let chart;
 let db = JSON.parse(localStorage.getItem('sweetPinkMoneyDB') || '{}');
 
-['income','expense','loans','loanPayments','saving','gold','receipts','categories','rentalUnits','rentalPayments']
+['income','expense','loans','loanPayments','saving','savingTx','gold','receipts','categories','rentalUnits','rentalPayments','rentUnits','rentPayments','rentExpenses']
   .forEach(k => db[k] ||= []);
 
 if(!db.categories.length){
@@ -2449,6 +2456,33 @@ if(type==='loanPay'){
       <button class="btn green" onclick="addSaving()">บันทึกเงินออม</button>
     </div>`;
   }
+
+if(type==='savingTx'){
+  const s = db.saving.find(x => x.id === refId);
+
+  h = `<div class="form">
+    <input type="hidden" id="f_saving_id" value="${refId}">
+    <input value="${s?.name || ''}" readonly>
+    <input type="date" id="f_date" value="${today}">
+    <input type="number" id="f_amount" placeholder="จำนวนเงินที่ออม">
+    <textarea id="f_note" placeholder="หมายเหตุ"></textarea>
+    <button class="btn green" onclick="addSavingTransaction('save')">บันทึกออมเพิ่ม</button>
+  </div>`;
+}
+
+if(type==='savingDividend'){
+  const s = db.saving.find(x => x.id === refId);
+
+  h = `<div class="form">
+    <input type="hidden" id="f_saving_id" value="${refId}">
+    <input value="${s?.name || ''}" readonly>
+    <input type="date" id="f_date" value="${today}">
+    <input type="number" id="f_amount" placeholder="จำนวนเงินปันผล">
+    <textarea id="f_note" placeholder="หมายเหตุ เช่น ปันผล Q1"></textarea>
+    <button class="btn gold" onclick="addSavingTransaction('dividend')">บันทึกปันผล</button>
+  </div>`;
+}
+
   if(type==='gold'){
     h = `<div class="form">
       <input type="date" id="f_date" value="${today}">
@@ -2892,28 +2926,54 @@ async function addSaving() {
     return showError('กรอกชื่อเงินออมก่อนค่ะ');
   }
 
-  const { error } = await supabaseClient
-    .from('money_savings')
-    .insert({
-      name: val('f_name'),
-      target: num('f_target'),
-      amount: num('f_amount'),
-      note: val('f_note')
-    });
+  const payload = {
+    name: val('f_name'),
+    target: num('f_target'),
+    amount: num('f_amount'),
+    note: val('f_note')
+  };
+
+  const { error } = window.editSavingId
+    ? await supabaseClient
+        .from('money_savings')
+        .update(payload)
+        .eq('id', window.editSavingId)
+    : await supabaseClient
+        .from('money_savings')
+        .insert(payload);
 
   if (error) {
     console.error(error);
     return showError('บันทึกเงินออมไม่สำเร็จ : ' + error.message);
   }
 
+  window.editSavingId = null;
+
   closeForm();
-
   showSuccess('บันทึกเงินออมสำเร็จ');
-
   await loadDataFromSupabase();
-
   go('saving');
 }
+
+function editSaving(id){
+  const row = db.saving.find(x => x.id === id);
+
+  if(!row){
+    return showError('ไม่พบรายการเงินออม');
+  }
+
+  window.editSavingId = id;
+
+  openForm('saving');
+
+  setTimeout(() => {
+    el('f_name').value = row.name || '';
+    el('f_target').value = row.target || 0;
+    el('f_amount').value = row.amount || 0;
+    el('f_note').value = row.note || '';
+  }, 100);
+}
+
 async function addGold() {
   if (num('f_amount') <= 0) {
     return showError('กรอกจำนวนเงินก่อนค่ะ');
@@ -3085,6 +3145,275 @@ async function addSavingMore(rid) {
   showSuccess(`เพิ่มเงินออม ${money(amount)} สำเร็จ `);
 
   await loadDataFromSupabase();
+}
+
+async function addSavingTransaction(type){
+  const savingId = val('f_saving_id');
+  const amount = num('f_amount');
+
+  if(amount <= 0){
+    return showError('กรอกจำนวนเงินก่อนค่ะ');
+  }
+
+  const oldTx = window.editSavingTxId
+    ? db.savingTx.find(x => x.id === window.editSavingTxId)
+    : null;
+
+  const payload = {
+    saving_id: savingId,
+    tx_date: val('f_date'),
+    type: type,
+    amount: amount,
+    note: val('f_note')
+  };
+
+  const result = window.editSavingTxId
+    ? await supabaseClient
+        .from('money_saving_transactions')
+        .update(payload)
+        .eq('id', window.editSavingTxId)
+    : await supabaseClient
+        .from('money_saving_transactions')
+        .insert(payload);
+
+  if(result.error){
+    return showError('บันทึกประวัติเงินออมไม่สำเร็จ : ' + result.error.message);
+  }
+
+  const saving = db.saving.find(x => x.id === savingId);
+  let newAmount = Number(saving?.amount || 0);
+
+  if(window.editSavingTxId && oldTx){
+    if(oldTx.type === 'save'){
+      newAmount -= Number(oldTx.amount || 0);
+    }
+
+    if(type === 'save'){
+      newAmount += amount;
+    }
+  }else{
+    if(type === 'save'){
+      newAmount += amount;
+    }
+  }
+
+  await supabaseClient
+    .from('money_savings')
+    .update({ amount: newAmount })
+    .eq('id', savingId);
+
+  window.editSavingTxId = null;
+
+  closeForm();
+  showSuccess(type === 'dividend' ? 'บันทึกปันผลสำเร็จ' : 'บันทึกออมเพิ่มสำเร็จ');
+
+  await loadDataFromSupabase();
+  go('saving');
+}
+
+function openSavingDetail(savingId){
+  const s = db.saving.find(x => x.id === savingId);
+  const rowsAll = (db.savingTx || []).filter(x => x.saving_id === savingId);
+
+  const totalSave = sum(rowsAll.filter(x => x.type === 'save'), 'amount');
+  const totalDividend = sum(rowsAll.filter(x => x.type === 'dividend'), 'amount');
+
+  Swal.fire({
+    title:'',
+    html:`
+      <div class="detail-box">
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">${s?.name || 'เงินออม'}</h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">
+            เลือกดูประวัติตามประเภท
+          </p>
+          <div class="detail-total">${money(totalSave + totalDividend)}</div>
+          <p style="font-weight:900;color:var(--muted)">
+            ออม ${money(totalSave)} • ปันผล ${money(totalDividend)}
+          </p>
+        </div>
+
+        <div class="list">
+          <div class="detail-row" onclick="openSavingTypeYears('${savingId}','save')" style="cursor:pointer">
+            <div>
+              <h4>ประวัติออมเพิ่ม</h4>
+              <p>กดเพื่อดูแยกตามปี</p>
+            </div>
+            <div class="amount in">${money(totalSave)}</div>
+          </div>
+
+          <div class="detail-row" onclick="openSavingTypeYears('${savingId}','dividend')" style="cursor:pointer">
+            <div>
+              <h4>ประวัติปันผล</h4>
+              <p>กดเพื่อดูแยกตามปี</p>
+            </div>
+            <div class="amount gold">${money(totalDividend)}</div>
+          </div>
+        </div>
+      </div>
+    `,
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
+  });
+}
+
+function openSavingTypeYears(savingId, type){
+  const s = db.saving.find(x => x.id === savingId);
+
+  const rowsAll = (db.savingTx || [])
+    .filter(x => x.saving_id === savingId && x.type === type);
+
+  const years = [...new Set(
+    rowsAll.map(x => String(x.tx_date || '').slice(0,4)).filter(Boolean)
+  )].sort((a,b) => Number(b) - Number(a));
+
+  const title = type === 'dividend' ? 'ปันผล' : 'ออมเพิ่ม';
+
+  const yearRows = years.length ? years.map(y => {
+    const rows = rowsAll.filter(x => String(x.tx_date || '').slice(0,4) === y);
+
+    return `
+      <div class="detail-row" onclick="openSavingTypeYearDetail('${savingId}','${type}','${y}')" style="cursor:pointer">
+        <div>
+          <h4>ปี ${y}</h4>
+          <p>${rows.length} รายการ</p>
+        </div>
+        <div class="amount ${type === 'dividend' ? 'gold' : 'in'}">${money(sum(rows,'amount'))}</div>
+      </div>
+    `;
+  }).join('') : `<div class="empty">ยังไม่มีประวัติ${title}</div>`;
+
+  Swal.fire({
+    title:'',
+    html:`
+      <div class="detail-box">
+        <button class="btn white" style="margin-bottom:12px"
+          onclick="Swal.close(); openSavingDetail('${savingId}')">
+          ← กลับ
+        </button>
+
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">${title}</h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">${s?.name || ''}</p>
+          <div class="detail-total">${money(sum(rowsAll,'amount'))}</div>
+        </div>
+
+        <div class="list">${yearRows}</div>
+      </div>
+    `,
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
+  });
+}
+
+function openSavingTypeYearDetail(savingId, type, year){
+  const rows = (db.savingTx || [])
+    .filter(x =>
+      x.saving_id === savingId &&
+      x.type === type &&
+      String(x.tx_date || '').slice(0,4) === year
+    )
+    .sort((a,b) => String(b.tx_date || '').localeCompare(String(a.tx_date || '')));
+
+  const title = type === 'dividend' ? 'ปันผล' : 'ออมเพิ่ม';
+
+  const html = rows.length ? rows.map(x => `
+  <div class="detail-row">
+    <div>
+      <h4>${title}</h4>
+      <p>${x.tx_date || '-'} ${x.note ? '• ' + x.note : ''}</p>
+
+      <div class="actions">
+        <button class="mini" onclick="editSavingTx('${x.id}')">แก้ไข</button>
+        <button class="mini danger" onclick="deleteSavingTx('${x.id}','${savingId}','${type}','${year}')">ลบ</button>
+      </div>
+    </div>
+
+    <div class="amount ${type === 'dividend' ? 'gold' : 'in'}">
+      ${money(x.amount)}
+    </div>
+  </div>
+`).join('') : `<div class="empty">ยังไม่มีรายการ</div>`;
+
+  Swal.fire({
+    title:'',
+    html:`
+      <div class="detail-box">
+        <button class="btn white" style="margin-bottom:12px"
+          onclick="Swal.close(); openSavingTypeYears('${savingId}','${type}')">
+          ← กลับ
+        </button>
+
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">${title} ปี ${year}</h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">${rows.length} รายการ</p>
+          <div class="detail-total">${money(sum(rows,'amount'))}</div>
+        </div>
+
+        <div class="list">${html}</div>
+      </div>
+    `,
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
+  });
+}
+
+function editSavingTx(txId){
+  const tx = db.savingTx.find(x => x.id === txId);
+  if(!tx) return showError('ไม่พบประวัติรายการนี้');
+
+  window.editSavingTxId = txId;
+
+  Swal.close();
+
+  openForm(tx.type === 'dividend' ? 'savingDividend' : 'savingTx', tx.saving_id);
+
+  setTimeout(() => {
+    el('f_date').value = tx.tx_date || today;
+    el('f_amount').value = tx.amount || 0;
+    el('f_note').value = tx.note || '';
+  }, 100);
+}
+
+async function deleteSavingTx(txId, savingId, type = 'save', year = 'all'){
+  const tx = db.savingTx.find(x => x.id === txId);
+
+  const ok = await Swal.fire({
+    title:'ลบประวัตินี้?',
+    icon:'warning',
+    showCancelButton:true,
+    confirmButtonText:'ลบ',
+    cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#ff5fa2'
+  });
+
+  if(!ok.isConfirmed) return;
+
+  const { error } = await supabaseClient
+    .from('money_saving_transactions')
+    .delete()
+    .eq('id', txId);
+
+  if(error) return showError('ลบไม่สำเร็จ : ' + error.message);
+
+  // หักยอดออมกลับ เฉพาะรายการออมเพิ่มเท่านั้น
+  if(tx?.type === 'save'){
+    const saving = db.saving.find(x => x.id === savingId);
+    const newAmount = Math.max(0, Number(saving?.amount || 0) - Number(tx.amount || 0));
+
+    await supabaseClient
+      .from('money_savings')
+      .update({ amount: newAmount })
+      .eq('id', savingId);
+  }
+
+  showSuccess('ลบสำเร็จ');
+  await loadDataFromSupabase();
+
+  openSavingTypeYearDetail(savingId, type, year);
 }
 
 function render(){
@@ -4017,11 +4346,48 @@ if(el('rentNetTotal')) el('rentNetTotal').textContent = money(rentNetTotal);
 }
 
 function renderSaving(){
-  savingList.innerHTML = db.saving.length ? db.saving.map(x=>{
-    const pct = x.target ? Math.min(100,Math.round(x.amount/x.target*100)) : 0;
-    return `<div class="item"><div><h4>${x.name}</h4><p>เป้าหมาย ${money(x.target)} • ออมแล้ว ${money(x.amount)} ${x.note?'• '+x.note:''}</p><div class="progress"><div class="bar" style="width:${pct}%"></div></div><div class="actions"><button class="mini" onclick="addSavingMore('${x.id}')">ออมเพิ่ม</button><button class="mini danger" onclick="del('saving','${x.id}')">ลบ</button></div></div><div class="amount in">${pct}%</div></div>`;
+  savingList.innerHTML = db.saving.length ? [...db.saving]
+.sort((a,b) => Number(b.amount || 0) - Number(a.amount || 0))
+.map(x => {
+    const tx = (db.savingTx || []).filter(t => t.saving_id === x.id);
+
+    const saveTotal = sum(tx.filter(t => t.type === 'save'), 'amount');
+    const dividendTotal = sum(tx.filter(t => t.type === 'dividend'), 'amount');
+
+    const savedAmount = Number(x.amount || 0);
+    const target = Number(x.target || 0);
+    const pct = target ? Math.min(100, Math.round((savedAmount / target) * 100)) : 0;
+
+    return `
+      <div class="item">
+        <div>
+          <h4>${x.name}</h4>
+
+          <p>
+            เป้าหมาย ${money(target)} • ออมแล้ว ${money(savedAmount)}<br>
+            ปันผลรวม ${money(dividendTotal)}
+            ${x.note ? '<br>' + x.note : ''}
+          </p>
+
+          <div class="progress">
+            <div class="bar" style="width:${pct}%"></div>
+          </div>
+
+          <div class="actions">
+            <button class="mini" onclick="openForm('savingTx','${x.id}')">ออมเพิ่ม</button>
+            <button class="mini" onclick="openForm('savingDividend','${x.id}')">ปันผล</button>
+            <button class="mini" onclick="openSavingDetail('${x.id}')">ประวัติ</button>
+            <button class="mini" onclick="editSaving('${x.id}')">แก้ไข</button>
+            <button class="mini danger" onclick="del('saving','${x.id}')">ลบ</button>
+          </div>
+        </div>
+
+        <div class="amount in">${pct}%</div>
+      </div>
+    `;
   }).join('') : empty();
 }
+
 function renderGold(){
   goldList.innerHTML = db.gold.length ? db.gold.map(x=>item(`ทองออม ${x.weight||''}`,`${x.date} • ${x.shop||'-'} • ราคาทอง ${money(x.gold_price)}`,money(x.amount),'gold','gold',x.id,x.receipt)).join('') : empty();
 }
