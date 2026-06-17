@@ -45,6 +45,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script>
 
@@ -1236,6 +1237,155 @@ textarea:focus{
     font-size:13px;
   }
 }
+.dash-hero{
+  background:linear-gradient(135deg,#ff5fa2,#ff9ac7);
+  border-radius:28px;
+  padding:22px;
+  margin-bottom:14px;
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 16px 34px rgba(255,95,162,.25);
+}
+
+.dash-hero small{
+  font-size:13px;
+  font-weight:800;
+  opacity:.9;
+}
+
+.dash-hero h2{
+  margin:4px 0;
+  font-size:34px;
+  line-height:1;
+}
+
+.dash-hero p{
+  margin:0;
+  font-size:13px;
+  font-weight:800;
+  opacity:.85;
+}
+
+.dash-add{
+  width:54px;
+  height:54px;
+  border:0;
+  border-radius:20px;
+  background:#fff;
+  color:var(--pink);
+  font-size:22px;
+  box-shadow:0 10px 24px rgba(0,0,0,.12);
+}
+
+.quick-actions{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+  margin-bottom:14px;
+}
+
+.quick-actions button{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:20px;
+  padding:12px 6px;
+  color:var(--text);
+  font-weight:900;
+  font-size:12px;
+  box-shadow:0 8px 18px rgba(255,95,162,.08);
+}
+
+.quick-actions i{
+  display:block;
+  color:var(--pink);
+  font-size:20px;
+  margin-bottom:5px;
+}
+
+.dash-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.dash-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:14px;
+  min-height:105px;
+  box-shadow:0 8px 18px rgba(255,95,162,.08);
+}
+
+.dash-card i{
+  color:var(--pink);
+  font-size:21px;
+  margin-bottom:10px;
+}
+
+.dash-card small{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:850;
+}
+
+.dash-card b{
+  display:block;
+  margin-top:4px;
+  font-size:20px;
+  color:var(--text);
+  line-height:1.1;
+}
+
+.dash-card.green b{color:var(--green)}
+.dash-card.red b{color:var(--red)}
+.dash-card.gold b{color:var(--gold)}
+.dash-card.purple b{color:var(--purple)}
+
+@media(max-width:520px){
+  .dash-hero{
+    border-radius:24px;
+    padding:18px;
+  }
+
+  .dash-hero h2{
+    font-size:29px;
+  }
+
+  .dash-add{
+    width:48px;
+    height:48px;
+    border-radius:18px;
+  }
+
+  .quick-actions{
+    gap:8px;
+  }
+
+  .quick-actions button{
+    font-size:11px;
+    padding:10px 4px;
+    border-radius:17px;
+  }
+
+  .quick-actions i{
+    font-size:18px;
+  }
+
+  .dash-card{
+    padding:12px;
+    min-height:96px;
+    border-radius:20px;
+  }
+
+  .dash-card b{
+    font-size:18px;
+  }
+}
 </style>
 </head>
 <body>
@@ -1246,56 +1396,97 @@ textarea:focus{
   </div>
 
  <section id="dashboard" class="section active">
-  <div class="stats">
 
-    <div class="stat in">
-      <div class="icon"><i class="fa-solid fa-wallet"></i></div>
+  <div class="dash-hero">
+    <div>
+      <small>ยอดคงเหลือสุทธิ</small>
+      <h2 id="dashBalance">฿0</h2>
+      <p>รายรับ - รายจ่าย</p>
+    </div>
+
+    <button class="dash-add" onclick="openQuick()">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </div>
+
+  <div class="quick-actions">
+    <button onclick="openForm('income')">
+      <i class="fa-solid fa-wallet"></i>
+      รายรับ
+    </button>
+
+    <button onclick="openForm('expense')">
+      <i class="fa-solid fa-receipt"></i>
+      รายจ่าย
+    </button>
+
+    <button onclick="go('rental')">
+      <i class="fa-solid fa-building"></i>
+      ค่าเช่า
+    </button>
+
+    <button onclick="go('homepay')">
+      <i class="fa-solid fa-house"></i>
+      ค่างวด
+    </button>
+  </div>
+
+  <div class="dash-grid">
+
+    <div class="dash-card green">
+      <i class="fa-solid fa-arrow-trend-up"></i>
       <small>รายรับรวม</small>
       <b id="dashIncome">฿0</b>
     </div>
 
-    <div class="stat out">
-      <div class="icon"><i class="fa-solid fa-receipt"></i></div>
+    <div class="dash-card red">
+      <i class="fa-solid fa-arrow-trend-down"></i>
       <small>รายจ่ายรวม</small>
       <b id="dashExpense">฿0</b>
     </div>
 
-    <div class="stat">
-      <div class="icon"><i class="fa-solid fa-coins"></i></div>
-      <small>เงินคงเหลือ</small>
-      <b id="dashBalance">฿0</b>
-    </div>
-
-    <div class="stat out">
-      <div class="icon"><i class="fa-solid fa-house"></i></div>
+    <div class="dash-card">
+      <i class="fa-solid fa-house"></i>
       <small>ยอดผ่อนคงเหลือ</small>
       <b id="dashDebt">฿0</b>
     </div>
 
-    <div class="stat in">
-      <div class="icon"><i class="fa-solid fa-piggy-bank"></i></div>
+    <div class="dash-card green">
+      <i class="fa-solid fa-piggy-bank"></i>
       <small>เงินออม</small>
       <b id="dashSaving">฿0</b>
     </div>
 
-    <div class="stat gold">
-      <div class="icon"><i class="fa-solid fa-medal"></i></div>
+    <div class="dash-card gold">
+      <i class="fa-solid fa-medal"></i>
       <small>ทองออม</small>
       <b id="dashGold">฿0</b>
     </div>
 
+    <div class="dash-card purple">
+      <i class="fa-solid fa-building"></i>
+      <small>รายได้ค่าเช่า</small>
+      <b id="dashRent">฿0</b>
+    </div>
+
   </div>
 
-    <div class="card">
-      <div class="card-title"><h3><span class="pink-icon">◌</span> สรุปภาพรวม</h3></div>
-      <canvas id="mainChart" height="150"></canvas>
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-chart-pie title-icon"></i> สรุปภาพรวม</h3>
     </div>
+    <canvas id="mainChart" height="130"></canvas>
+  </div>
 
-    <div class="card">
-      <div class="card-title"><h3><span class="pink-icon">✿</span> รายการล่าสุด</h3><button class="btn white" onclick="go('receipts')">ดูใบเสร็จ</button></div>
-      <div class="list" id="latestList"></div>
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-clock title-icon"></i> รายการล่าสุด</h3>
+      <button class="btn white" onclick="go('receipts')">ใบเสร็จ</button>
     </div>
-  </section>
+    <div class="list" id="latestList"></div>
+  </div>
+
+</section>
 
   <section id="income" class="section">
     <div class="top-menu">
@@ -1311,6 +1502,16 @@ textarea:focus{
       <button class="btn" onclick="openForm('income')">+ เพิ่ม</button>
     </div>
     <div class="category-grid" id="incomeCategorySummary"></div>
+  </div>
+</section>
+
+<section id="rental" class="section">
+  <div class="card">
+    <div class="card-title">
+      <h3><i class="fa-solid fa-building title-icon"></i> ค่าเช่าคอนโด</h3>
+      <button class="btn" onclick="openForm('rentUnit')">+ เพิ่มห้อง</button>
+    </div>
+    <div class="list" id="rentUnitList"></div>
   </div>
 </section>
 
@@ -1387,6 +1588,11 @@ textarea:focus{
         ผ่อนบ้าน
       </button>
 
+	<button class="cat-card" onclick="go('rental')">
+ 	 <i class="fa-solid fa-building menu-icon"></i>
+ 	 ค่าเช่าคอนโด
+	</button>
+
       <button class="cat-card" onclick="go('saving')">
         <i class="fa-solid fa-piggy-bank menu-icon"></i>
         เงินออม
@@ -1457,6 +1663,11 @@ textarea:focus{
         ผ่อนบ้าน/หนี้
       </button>
 
+	<button class="quick" onclick="openForm('rentUnit')">
+ 	 <i class="fa-solid fa-building quick-icon"></i>
+ 	 ห้องเช่า
+	</button>
+
       <button class="quick" onclick="openForm('saving')">
         <i class="fa-solid fa-piggy-bank quick-icon"></i>
         เงินออม
@@ -1485,6 +1696,168 @@ textarea:focus{
 </div>
 
 <script>
+async function readLoanSlipImage(input){
+  const file = input?.files?.[0];
+  if(!file) return showError('กรุณาเลือกรูปก่อนค่ะ');
+
+  Swal.fire({
+    title:'กำลังอ่านรูป...',
+    text:'รอสักครู่ค่ะ',
+    allowOutsideClick:false,
+    didOpen:()=>Swal.showLoading()
+  });
+
+  try{
+    const result = await Tesseract.recognize(file, 'tha+eng');
+    const text = result.data.text || '';
+
+    console.log('OCR TEXT:', text);
+
+    const clean = text
+      .replace(/\s+/g, ' ')
+      .replace(/,/g, '');
+
+    const toNum = v => Number(String(v || '').replace(/[^\d.]/g,''));
+
+    // ✅ ดึงเฉพาะ “จำนวนเงิน” ไม่เอาวงเงินอนุมัติ
+    const amountMatch =
+      clean.match(/จำนวนเงิน\s*([\d.]+)/) ||
+      clean.match(/จํานวนเงิน\s*([\d.]+)/);
+
+    const principalMatch =
+      clean.match(/จำนวนเงินต้น\s*([\d.]+)/) ||
+      clean.match(/จํานวนเงินต้น\s*([\d.]+)/) ||
+      clean.match(/เงินต้น\s*([\d.]+)/);
+
+    const interestMatch =
+      clean.match(/จำนวนดอกเบี้ย\s*([\d.]+)/) ||
+      clean.match(/จํานวนดอกเบี้ย\s*([\d.]+)/) ||
+      clean.match(/ดอกเบี้ย\s*([\d.]+)/);
+
+    // ✅ วันที่ 04 พ.ย. 2568
+    const dateMatch = clean.match(/วันที่ทำรายการ\s*(\d{1,2})\s*([ก-ฮ.]+)\s*(\d{4})/);
+
+    const monthMap = {
+      'ม.ค.':'01','ก.พ.':'02','มี.ค.':'03','เม.ย.':'04',
+      'พ.ค.':'05','มิ.ย.':'06','ก.ค.':'07','ส.ค.':'08',
+      'ก.ย.':'09','ต.ค.':'10','พ.ย.':'11','ธ.ค.':'12'
+    };
+
+    if(dateMatch){
+      const day = String(dateMatch[1]).padStart(2,'0');
+      const month = monthMap[dateMatch[2]] || '01';
+      const year = Number(dateMatch[3]) - 543;
+      el('f_date').value = `${year}-${month}-${day}`;
+    }
+
+    if(amountMatch){
+      el('f_amount').value = toNum(amountMatch[1]);
+    }
+
+    if(principalMatch){
+      el('f_principal_paid').value = toNum(principalMatch[1]);
+    }
+
+    if(interestMatch){
+      el('f_interest_paid').value = toNum(interestMatch[1]);
+    }
+
+    // ✅ ถ้ายอดรวมยังว่าง ให้รวมเงินต้น + ดอกเบี้ย
+    if(!el('f_amount').value && principalMatch && interestMatch){
+      el('f_amount').value =
+        toNum(principalMatch[1]) + toNum(interestMatch[1]);
+    }
+
+    Swal.fire({
+      icon:'success',
+      title:'อ่านข้อมูลจากรูปแล้ว',
+      text:'ตรวจสอบตัวเลขก่อนกดบันทึกนะคะ',
+      confirmButtonColor:'#ff5fa2'
+    });
+
+  }catch(err){
+    console.error(err);
+    showError('อ่านรูปไม่สำเร็จ: ' + err.message);
+  }
+}
+
+function openRentalUnitDetail(unitId){
+  const unit = db.rentUnits.find(x => x.id === unitId);
+
+  if(!unit){
+    return showError('ไม่พบข้อมูลห้องเช่านี้');
+  }
+
+  const pays = db.rentPayments
+    .filter(p => p.rental_unit_id === unitId)
+    .sort((a,b) => String(b.pay_date || '').localeCompare(String(a.pay_date || '')));
+
+  const expenses = db.rentExpenses
+    .filter(e => e.rental_unit_id === unitId)
+    .sort((a,b) => String(b.expense_date || '').localeCompare(String(a.expense_date || '')));
+
+  const payRows = pays.length ? pays.map(p => `
+    <div class="detail-row">
+      <div>
+        <h4>รับค่าเช่า ${p.pay_date || '-'}</h4>
+        <p>
+          ค่าเช่า ${money(p.rent_paid || 0)}<br>
+          ที่จอดรถ ${money(p.parking_paid || 0)}<br>
+          อื่นๆ ${money(p.other_paid || 0)}
+          ${p.note ? '<br>หมายเหตุ: ' + p.note : ''}
+        </p>
+      </div>
+      <div class="amount in">${money(p.total_paid || 0)}</div>
+    </div>
+  `).join('') : `<div class="empty">ยังไม่มีประวัติรับค่าเช่า</div>`;
+
+  const expenseRows = expenses.length ? expenses.map(e => `
+    <div class="detail-row">
+      <div>
+        <h4>${e.title || 'ค่าใช้จ่าย'}</h4>
+        <p>${e.expense_date || '-'} ${e.note ? '• ' + e.note : ''}</p>
+      </div>
+      <div class="amount out">${money(e.amount || 0)}</div>
+    </div>
+  `).join('') : `<div class="empty">ยังไม่มีค่าใช้จ่ายของห้องนี้</div>`;
+
+  Swal.fire({
+    title: '',
+    html: `
+      <div class="detail-box">
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">
+            ${unit.room_name || '-'} • ${unit.property_name || ''}
+          </h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">
+            ผู้เช่า: ${unit.tenant_name || '-'} • ค่าเช่า ${money(unit.rent_amount || 0)}
+          </p>
+          <div class="detail-total">${money(sum(pays, 'total_paid') - sum(expenses, 'amount'))}</div>
+        </div>
+
+        <button class="btn" style="width:100%;margin-bottom:10px"
+          onclick="Swal.close(); openForm('rentPay','${unitId}')">
+          รับค่าเช่า
+        </button>
+
+        <button class="btn white" style="width:100%;margin-bottom:12px"
+          onclick="Swal.close(); openForm('rentExpense','${unitId}')">
+          เพิ่มค่าใช้จ่าย
+        </button>
+
+        <h3 style="color:var(--pink)">ประวัติรับค่าเช่า</h3>
+        <div class="list">${payRows}</div>
+
+        <h3 style="color:var(--pink);margin-top:14px">ค่าใช้จ่าย</h3>
+        <div class="list">${expenseRows}</div>
+      </div>
+    `,
+    width: 760,
+    showConfirmButton:false,
+    showCloseButton:true
+  });
+}
+
 async function loadDataFromSupabase(){
   const { data: income } = await supabaseClient
     .from('money_income')
@@ -1520,6 +1893,60 @@ const { data: receipts } = await supabaseClient
   .from('money_receipts')
   .select('*')
   .order('receipt_date', { ascending:false });
+
+const { data: categories } = await supabaseClient
+  .from('money_categories')
+  .select('*')
+  .order('created_at', { ascending:false });
+
+const { data: rentUnits } = await supabaseClient
+  .from('money_rental_units')
+  .select('*')
+  .order('created_at', { ascending:false });
+
+const { data: rentPayments } = await supabaseClient
+  .from('money_rental_payments')
+  .select('*')
+  .order('pay_date', { ascending:false });
+
+const { data: rentExpenses } = await supabaseClient
+  .from('money_rental_expenses')
+  .select('*')
+  .order('expense_date', { ascending:false });
+
+db.rentUnits = rentUnits || [];
+db.rentPayments = rentPayments || [];
+db.rentExpenses = rentExpenses || [];
+
+const { data: rentalUnits, error: rentalUnitsError } = await supabaseClient
+  .from('money_rental_units')
+  .select('*')
+  .order('created_at', { ascending:false });
+
+if(rentalUnitsError){
+  console.error(rentalUnitsError);
+  showError('โหลดห้องเช่าไม่สำเร็จ : ' + rentalUnitsError.message);
+}
+
+db.rentalUnits = (rentalUnits || []).map(x => ({
+  id: x.id,
+  unit_name: x.unit_name || x.room_name || x.name,
+  room_no: x.room_no,
+  tenant_name: x.tenant_name,
+  rent_amount: x.rent_amount,
+  parking_amount: x.parking_amount,
+  due_day: x.due_day,
+  note: x.note
+}));
+
+db.categories = (categories || []).map(x => ({
+  id:x.id,
+  type:x.type,
+  name:x.name,
+  icon:x.icon || (x.type === 'income'
+    ? 'fa-solid fa-wallet'
+    : 'fa-solid fa-receipt')
+}));
 
 db.receipts = (receipts || []).map(x => ({
   id:x.id,
@@ -1628,7 +2055,7 @@ const today = new Date().toISOString().slice(0,10);
 let chart;
 let db = JSON.parse(localStorage.getItem('sweetPinkMoneyDB') || '{}');
 
-['income','expense','loans','loanPayments','saving','gold','receipts','categories']
+['income','expense','loans','loanPayments','saving','gold','receipts','categories','rentalUnits','rentalPayments']
   .forEach(k => db[k] ||= []);
 
 if(!db.categories.length){
@@ -1687,6 +2114,11 @@ function pageName(id){
       '<i class="fa-solid fa-camera" style="color:#ff5fa2"></i> คลังใบเสร็จ',
       'เก็บรูปใบเสร็จและรายละเอียดการจ่าย'
     ],
+
+	rental:[
+  	'<i class="fa-solid fa-building" style="color:#ff5fa2"></i> ค่าเช่าคอนโด',
+  	'เก็บค่าเช่าห้อง ค่าที่จอดรถ และค่าใช้จ่าย'
+	],
 
     more:[
       '<i class="fa-solid fa-border-all" style="color:#ff5fa2"></i> เมนูทั้งหมด',
@@ -1782,7 +2214,8 @@ if(type==='loan'){
 }
 
 if(type==='loanPay'){
-  const loan = db.loans.find(x=>x.id===refId);
+  const loan = db.loans.find(x => x.id === refId);
+
   const pay = window.editLoanPaymentId
     ? db.loanPayments.find(x => x.id === window.editLoanPaymentId)
     : null;
@@ -1792,10 +2225,28 @@ if(type==='loanPay'){
     <input value="${loan ? loan.name : ''}" readonly>
 
     <input type="date" id="f_date" value="${pay?.date || today}">
-    <input type="number" id="f_amount" placeholder="ยอดจ่ายรวม" value="${pay?.amount || loan?.monthly || ''}">
+
+    <input type="number" id="f_amount" placeholder="ยอดจ่ายรวม" value="${pay?.amount || ''}">
+
     <input type="number" id="f_principal_paid" placeholder="เงินต้นที่ตัดได้" value="${pay?.principal_paid || ''}">
+
     <input type="number" id="f_interest_paid" placeholder="ดอกเบี้ยงวดนี้" value="${pay?.interest_paid || ''}">
+
     <input type="number" id="f_balance_after" placeholder="เงินต้นคงเหลือหลังจ่าย" value="${pay?.balance_after || ''}">
+
+    <input
+      type="file"
+      id="f_loan_slip"
+      accept="image/*"
+      onchange="readLoanSlipImage(this)"
+    >
+
+    <button
+      type="button"
+      class="btn white"
+      onclick="readLoanSlipImage(el('f_loan_slip'))">
+      📄 อ่านข้อมูลจากรูปสลิป
+    </button>
 
     <textarea id="f_note" placeholder="หมายเหตุ">${pay?.note || ''}</textarea>
 
@@ -1804,6 +2255,7 @@ if(type==='loanPay'){
     </button>
   </div>`;
 }
+
   if(type==='saving'){
     h = `<div class="form">
       <input id="f_name" placeholder="ชื่อเป้าหมาย เช่น เงินฉุกเฉิน">
@@ -1835,6 +2287,55 @@ if(type==='loanPay'){
       <button class="btn" onclick="addReceipt()">บันทึกใบเสร็จ</button>
     </div>`;
   }
+
+if(type==='rentUnit'){
+  h = `<div class="form">
+    <input id="f_property_name" placeholder="ชื่อคอนโด เช่น ดิเอ็กเซลล์">
+    <input id="f_room_name" placeholder="เลขห้อง เช่น B519">
+    <input id="f_tenant_name" placeholder="ชื่อผู้เช่า">
+    <input id="f_tenant_phone" placeholder="เบอร์ผู้เช่า">
+    <input type="number" id="f_rent_amount" placeholder="ค่าเช่าห้อง">
+    <input type="number" id="f_parking_amount" placeholder="ค่าที่จอดรถ">
+    <input type="number" id="f_due_day" placeholder="เก็บค่าเช่าวันที่ เช่น 5">
+    <textarea id="f_note" placeholder="หมายเหตุ"></textarea>
+
+    <button class="btn" onclick="addRentUnit()">บันทึกห้องเช่า</button>
+  </div>`;
+}
+
+if(type==='rentPay'){
+  const unit = db.rentUnits.find(x => x.id === refId);
+
+  h = `<div class="form">
+    <input type="hidden" id="f_unit_id" value="${refId}">
+    <input value="${unit?.room_name || ''}" readonly>
+
+    <input type="date" id="f_date" value="${today}">
+    <input type="number" id="f_rent_paid" placeholder="ค่าเช่าห้อง" value="${unit?.rent_amount || ''}">
+    <input type="number" id="f_parking_paid" placeholder="ค่าที่จอดรถ" value="${unit?.parking_amount || 0}">
+    <input type="number" id="f_other_paid" placeholder="รายรับอื่นๆ">
+    <textarea id="f_note" placeholder="หมายเหตุ"></textarea>
+
+    <button class="btn green" onclick="addRentPayment()">บันทึกรับค่าเช่า</button>
+  </div>`;
+}
+
+if(type==='rentExpense'){
+  const unit = db.rentUnits.find(x => x.id === refId);
+
+  h = `<div class="form">
+    <input type="hidden" id="f_unit_id" value="${refId}">
+    <input value="${unit?.room_name || ''}" readonly>
+
+    <input type="date" id="f_date" value="${today}">
+    <input id="f_title" placeholder="รายการ เช่น ซ่อมแอร์ / ค่าส่วนกลาง">
+    <input type="number" id="f_amount" placeholder="จำนวนเงิน">
+    <textarea id="f_note" placeholder="หมายเหตุ"></textarea>
+
+    <button class="btn red" onclick="addRentExpense()">บันทึกค่าใช้จ่ายห้อง</button>
+  </div>`;
+}
+
  if(type==='category'){
   h = `<div class="form">
 
@@ -1867,7 +2368,7 @@ formBody.innerHTML = h;
 formModal.classList.add('show');
 }
 
-function saveCategory(){
+async function saveCategory(){
   if(!val('f_name')){
     return showError('กรอกชื่อหมวดก่อนค่ะ');
   }
@@ -1876,36 +2377,38 @@ function saveCategory(){
   const type = val('f_type');
   const name = val('f_name');
 
-  if(catId){
-    const cat = db.categories.find(x => x.id === catId);
-    if(!cat) return showError('ไม่พบหมวดหมู่');
-
-    cat.type = type;
-    cat.name = name;
-    cat.icon = type === 'income'
+  const payload = {
+    type:type,
+    name:name,
+    icon:type === 'income'
       ? 'fa-solid fa-wallet'
-      : 'fa-solid fa-receipt';
+      : 'fa-solid fa-receipt'
+  };
 
-    showSuccess('แก้ไขหมวดหมู่สำเร็จ');
+  let result;
+
+  if(catId){
+    result = await supabaseClient
+      .from('money_categories')
+      .update(payload)
+      .eq('id', catId);
   }else{
-    db.categories.unshift({
-      id:id(),
-      type:type,
-      name:name,
-      icon:type === 'income'
-        ? 'fa-solid fa-wallet'
-        : 'fa-solid fa-receipt'
-    });
-
-    showSuccess('เพิ่มหมวดหมู่สำเร็จ');
+    result = await supabaseClient
+      .from('money_categories')
+      .insert(payload);
   }
 
-  save();
-  render();
+  if(result.error){
+    console.error(result.error);
+    return showError('บันทึกหมวดหมู่ไม่สำเร็จ : ' + result.error.message);
+  }
+
+  showSuccess(catId ? 'แก้ไขหมวดหมู่สำเร็จ' : 'เพิ่มหมวดหมู่สำเร็จ');
 
   el('f_category_id').value = '';
   el('f_name').value = '';
 
+  await loadDataFromSupabase();
   renderCategoryManageList();
 }
 
@@ -1995,34 +2498,6 @@ function fileToBase64(input){
     reader.onload = () => resolve(reader.result);
     reader.readAsDataURL(file);
   });
-}
-async function addIncome() {
-  if (num('f_amount') <= 0) {
-    return showError('กรอกชื่อรายการและจำนวนเงินก่อนค่ะ');
-  }
-
-  const { error } = await supabaseClient
-    .from('money_income')
-    .insert({
-  title: val('f_category'),
-  category: val('f_category'),
-  amount: num('f_amount'),
-  income_date: val('f_date'),
-  note: val('f_note')
-});
-
-  if (error) {
-    console.error(error);
-    return showError('บันทึกรายรับไม่สำเร็จ : ' + error.message);
-  }
-
-  closeForm();
-
-  showSuccess('บันทึกรายรับสำเร็จ ');
-
-  await loadDataFromSupabase();
-
-  go('income');
 }
 
 async function addExpense() {
@@ -2332,13 +2807,16 @@ async function del(type, rid){
   if (!result.isConfirmed) return;
 
   const tableMap = {
-    income: 'money_income',
-    expense: 'money_expense',
-    saving: 'money_savings',
-    gold: 'money_gold',
-    receipts: 'money_receipts',
-    loanPayments: 'money_loan_payments'
-  };
+  income: 'money_income',
+  expense: 'money_expense',
+  saving: 'money_savings',
+  gold: 'money_gold',
+  receipts: 'money_receipts',
+  loanPayments: 'money_loan_payments',
+  rentUnits: 'money_rental_units',
+  rentPayments: 'money_rental_payments',
+  rentExpenses: 'money_rental_expenses'
+};
 
   const table = tableMap[type];
 
@@ -2424,28 +2902,46 @@ async function addSavingMore(rid) {
 
   await loadDataFromSupabase();
 }
+
 function render(){
-  const totalIncome=sum(db.income), totalExpense=sum(db.expense);
-  const saving=sum(db.saving), gold=sum(db.gold);
-  const paid=sum(db.loanPayments);
-  const loanTotal=db.loans.reduce((s,x)=>s+Number(x.total||0),0);
-  const loanLeft=Math.max(0,loanTotal-paid);
-  dashIncome.textContent=money(totalIncome);
-  dashExpense.textContent=money(totalExpense);
-  dashBalance.textContent=money(totalIncome-totalExpense-saving-gold-paid);
-  dashDebt.textContent=money(loanLeft);
-  dashSaving.textContent=money(saving);
-  dashGold.textContent=money(gold);
+  const totalIncome = sum(db.income || []);
+  const totalExpense = sum(db.expense || []);
+
+  const saving = sum(db.saving || []);
+  const gold = sum(db.gold || []);
+
+  const paid = sum(db.loanPayments || []);
+  const loanTotal = (db.loans || []).reduce((s,x)=>s + Number(x.total || x.principal || 0), 0);
+  const loanLeft = Math.max(0, loanTotal - paid);
+
+  const rentIncome = sum(db.rentPayments || [], 'total_paid');
+  const rentExpense = sum(db.rentExpenses || [], 'amount');
+  const rentProfit = rentIncome - rentExpense;
+
+  const balance = totalIncome + rentIncome - totalExpense - rentExpense;
+
+  dashIncome.textContent = money(totalIncome + rentIncome);
+  dashExpense.textContent = money(totalExpense + rentExpense);
+  dashBalance.textContent = money(balance);
+  dashDebt.textContent = money(loanLeft);
+  dashSaving.textContent = money(saving);
+  dashGold.textContent = money(gold);
+
+  if(el('dashRent')){
+    dashRent.textContent = money(rentProfit);
+  }
 
   renderIncome();
   renderExpense();
+  renderRental();
   renderLoans();
   renderSaving();
   renderGold();
   renderReceipts();
   renderLatest();
-  renderChart(totalIncome,totalExpense,saving,gold,paid);
+  renderChart(totalIncome + rentIncome, totalExpense + rentExpense, saving, gold, paid);
 }
+
 function imageTag(src){ return src ? `<img class="receipt-img" src="${src}" alt="receipt">` : ''; }
 function item(title, sub, amount, cls, type, rid, img=''){
   return `<div class="item">
@@ -2473,9 +2969,13 @@ function renderIncome(){
   }).join('');
 }
 function openIncomeCategoryDetail(categoryName, year = 'all'){
-  const allRows = db.income.filter(x => x.category === categoryName);
+  const allRows = db.income
+    .filter(x => x.category === categoryName)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
 
-  const years = [...new Set(allPays.map(p => String(p.date || '').slice(0,4)).filter(Boolean))].sort((a,b) => Number(b) - Number(a));
+  const years = [...new Set(
+    allRows.map(x => String(x.date || '').slice(0,4)).filter(Boolean)
+  )].sort((a,b) => Number(b) - Number(a));
 
   const rows = year === 'all'
     ? allRows
@@ -2503,14 +3003,9 @@ function openIncomeCategoryDetail(categoryName, year = 'all'){
         <div style="text-align:right">
           <div class="amount in">${money(x.amount)}</div>
           <div class="actions" style="justify-content:flex-end">
-  <button class="mini" onclick="editIncome('${x.id}')">
-    แก้ไข
-  </button>
-
-  <button class="mini danger" onclick="deleteIncome('${x.id}', '${categoryName}', '${year}')">
-    ลบ
-  </button>
-</div>
+            <button class="mini" onclick="editIncome('${x.id}')">แก้ไข</button>
+            <button class="mini danger" onclick="deleteIncome('${x.id}', '${categoryName}', '${year}')">ลบ</button>
+          </div>
         </div>
       </div>
     `).join('')
@@ -2535,12 +3030,48 @@ function openIncomeCategoryDetail(categoryName, year = 'all'){
     `,
     width: 760,
     showConfirmButton: false,
-    showCloseButton: true,
-    customClass: {
-      popup: 'rounded-popup'
-    }
+    showCloseButton: true
   });
 }
+async function addIncome() {
+  if (num('f_amount') <= 0) {
+    return showError('กรอกจำนวนเงินก่อนค่ะ');
+  }
+
+  const payload = {
+    title: val('f_category'),
+    category: val('f_category'),
+    amount: num('f_amount'),
+    income_date: val('f_date'),
+    note: val('f_note')
+  };
+
+  let result;
+
+  if (window.editIncomeId) {
+    result = await supabaseClient
+      .from('money_income')
+      .update(payload)
+      .eq('id', window.editIncomeId);
+  } else {
+    result = await supabaseClient
+      .from('money_income')
+      .insert(payload);
+  }
+
+  if (result.error) {
+    console.error(result.error);
+    return showError('บันทึกรายรับไม่สำเร็จ : ' + result.error.message);
+  }
+
+  window.editIncomeId = null;
+
+  closeForm();
+  showSuccess('บันทึกรายรับสำเร็จ');
+  await loadDataFromSupabase();
+  go('income');
+}
+
 async function deleteIncome(id, categoryName = '', year = 'all'){
   const result = await Swal.fire({
     title: 'ลบรายการนี้?',
@@ -2590,6 +3121,7 @@ function editIncome(id){
     el('f_note').value = row.note || '';
   }, 100);
 }
+
 async function deleteCategory(id){
   const result = await Swal.fire({
     title: 'ลบหมวดหมู่ ?',
@@ -2600,13 +3132,22 @@ async function deleteCategory(id){
     cancelButtonText: 'ยกเลิก',
     confirmButtonColor: '#ff5fa2'
   });
+
   if(!result.isConfirmed) return;
-  db.categories =
-  db.categories.filter(x => x.id !== id);
-  save();
-  render();
-  renderCategoryManageList();
+
+  const { error } = await supabaseClient
+    .from('money_categories')
+    .delete()
+    .eq('id', id);
+
+  if(error){
+    return showError('ลบหมวดหมู่ไม่สำเร็จ : ' + error.message);
+  }
+
   showSuccess('ลบหมวดหมู่สำเร็จ');
+
+  await loadDataFromSupabase();
+  renderCategoryManageList();
 }
 
 function renderExpense(){
@@ -3075,6 +3616,130 @@ async function openLoanPaymentAction(paymentId){
     await del('loanPayments', paymentId);
     Swal.close();
   }
+}
+
+async function addRentUnit(){
+  if(!val('f_room_name')){
+    return showError('กรอกเลขห้องก่อนค่ะ');
+  }
+
+  const { error } = await supabaseClient
+    .from('money_rental_units')
+    .insert({
+      property_name: val('f_property_name'),
+      room_name: val('f_room_name'),
+      tenant_name: val('f_tenant_name'),
+      tenant_phone: val('f_tenant_phone'),
+      rent_amount: num('f_rent_amount'),
+      parking_amount: num('f_parking_amount'),
+      due_day: num('f_due_day'),
+      note: val('f_note')
+    });
+
+  if(error){
+    return showError('บันทึกห้องเช่าไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+  showSuccess('บันทึกห้องเช่าสำเร็จ');
+  await loadDataFromSupabase();
+  go('rental');
+}
+
+async function addRentPayment(){
+  const unitId = val('f_unit_id');
+
+  const rent = num('f_rent_paid');
+  const parking = num('f_parking_paid');
+  const other = num('f_other_paid');
+  const total = rent + parking + other;
+
+  if(total <= 0){
+    return showError('กรอกยอดรับเงินก่อนค่ะ');
+  }
+
+  const { error } = await supabaseClient
+    .from('money_rental_payments')
+    .insert({
+      rental_unit_id: unitId,
+      pay_date: val('f_date'),
+      rent_paid: rent,
+      parking_paid: parking,
+      other_paid: other,
+      total_paid: total,
+      note: val('f_note')
+    });
+
+  if(error){
+    return showError('บันทึกรับค่าเช่าไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+  showSuccess('บันทึกรับค่าเช่าสำเร็จ');
+  await loadDataFromSupabase();
+  go('rental');
+}
+
+async function addRentExpense(){
+  const unitId = val('f_unit_id');
+
+  if(num('f_amount') <= 0){
+    return showError('กรอกจำนวนเงินก่อนค่ะ');
+  }
+
+  const { error } = await supabaseClient
+    .from('money_rental_expenses')
+    .insert({
+      rental_unit_id: unitId,
+      expense_date: val('f_date'),
+      title: val('f_title'),
+      amount: num('f_amount'),
+      note: val('f_note')
+    });
+
+  if(error){
+    return showError('บันทึกค่าใช้จ่ายไม่สำเร็จ : ' + error.message);
+  }
+
+  closeForm();
+  showSuccess('บันทึกค่าใช้จ่ายสำเร็จ');
+  await loadDataFromSupabase();
+  go('rental');
+}
+
+function renderRental(){
+  const box = el('rentUnitList');
+  if(!box) return;
+
+  box.innerHTML = db.rentUnits.length ? db.rentUnits.map(r => {
+    const pays = db.rentPayments.filter(p => p.rental_unit_id === r.id);
+    const expenses = db.rentExpenses.filter(e => e.rental_unit_id === r.id);
+
+    const totalIncome = sum(pays, 'total_paid');
+    const totalExpense = sum(expenses, 'amount');
+    const profit = totalIncome - totalExpense;
+
+    return `
+      <div class="item" onclick="openRentalUnitDetail('${r.id}')" style="cursor:pointer">
+        <div>
+          <h4>${r.room_name || '-'} • ${r.property_name || ''}</h4>
+          <p>
+            ผู้เช่า: ${r.tenant_name || '-'}<br>
+            ค่าเช่า ${money(r.rent_amount)} • ที่จอดรถ ${money(r.parking_amount)}<br>
+            ครบกำหนดวันที่ ${r.due_day || '-'}
+          </p>
+
+          <div class="actions" onclick="event.stopPropagation()">
+            <button class="mini" onclick="openForm('rentPay','${r.id}')">รับค่าเช่า</button>
+            <button class="mini" onclick="openForm('rentExpense','${r.id}')">เพิ่มค่าใช้จ่าย</button>
+            <button class="mini danger" onclick="del('rentUnits','${r.id}')">ลบ</button>
+          </div>
+        </div>
+
+        <div class="amount in">${money(profit)}</div>
+      </div>
+    `;
+  }).join('') : empty('ยังไม่มีห้องเช่า กด + เพิ่มห้องก่อนได้เลยค่ะ');
 }
 
 function renderSaving(){
