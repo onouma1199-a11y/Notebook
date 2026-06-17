@@ -1386,12 +1386,30 @@ textarea:focus{
     font-size:18px;
   }
 }
+.logo-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:0;
+}
+
+.app-logo{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  object-fit:cover;
+  border:2px solid #ffd4e6;
+  box-shadow:0 4px 12px rgba(255,95,162,.15);
+}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <h1 id="pageTitle"><span class="pink-icon">♡</span> สมุดเงินหวานๆ</h1>
+   <h1 id="pageTitle" class="logo-title">
+  <img src="Boot.jpg" class="app-logo" alt="Logo">
+  สมุดเงินหวานๆ
+</h1>
     <p id="pageSub">บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และเก็บใบเสร็จไว้ในที่เดียว</p>
   </div>
 
@@ -2081,9 +2099,9 @@ function sum(arr,k='amount'){ return arr.reduce((s,x)=>s+Number(x[k]||0),0); }
 function pageName(id){
   return {
     dashboard:[
-      '<i class="fa-solid fa-heart" style="color:#ff5fa2"></i> สมุดเงินหวานๆ',
-      'บันทึกรายรับ รายจ่าย'
-    ],
+  '<img src="Boot.jpg" class="app-logo" alt="Logo"> สมุดเงินหวานๆ',
+  'บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และเก็บใบเสร็จไว้ในที่เดียว'
+   ],
 
     income:[
       '<i class="fa-solid fa-wallet" style="color:#ff5fa2"></i> รายรับ',
