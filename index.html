@@ -1268,17 +1268,6 @@ textarea:focus{
   opacity:.85;
 }
 
-.dash-add{
-  width:54px;
-  height:54px;
-  border:0;
-  border-radius:20px;
-  background:#fff;
-  color:var(--pink);
-  font-size:22px;
-  box-shadow:0 10px 24px rgba(0,0,0,.12);
-}
-
 .quick-actions{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -1401,31 +1390,82 @@ textarea:focus{
   border:2px solid #ffd4e6;
   box-shadow:0 4px 12px rgba(255,95,162,.15);
 }
+
+.year-filter{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+.year-filter button{
+  border:none;
+  background:#fff;
+  color:#D48197;
+  border:1px solid #f3bfd1;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.year-filter button:hover{
+  background:#D48197;
+  color:#fff;
+}
+
+.rent-summary-card{
+  background:linear-gradient(135deg,#ff78b5,#ff5fa2);
+  color:#fff;
+  padding:18px;
+  border-radius:22px;
+  margin-bottom:12px;
+}
+
+.rent-summary-card .label{font-size:13px;font-weight:800}
+.rent-summary-card .value{font-size:32px;font-weight:1000;margin-top:4px}
+.rent-summary-card .sub{font-size:12px;font-weight:800;opacity:.9}
+
+.rent-mini-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.mini-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+}
+
+.mini-card span{font-weight:900;color:var(--muted)}
+.mini-card strong{display:block;font-size:22px;margin-top:4px}
+.mini-card.income strong{color:var(--green)}
+.mini-card.expense strong{color:var(--red)}
+
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-   <h1 id="pageTitle" class="logo-title">
-  <img src="Boot.jpg" class="app-logo" alt="Logo">
-  สมุดเงินหวานๆ
-</h1>
-    <p id="pageSub">บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และเก็บใบเสร็จไว้ในที่เดียว</p>
-  </div>
+  <h1 id="pageTitle" class="logo-title">
+    <img src="Boot.jpg" class="app-logo" alt="Logo">
+    สมุดเงินหวานๆ
+  </h1>
+</div>
 
  <section id="dashboard" class="section active">
 
   <div class="dash-hero">
-    <div>
-      <small>ยอดคงเหลือสุทธิ</small>
-      <h2 id="dashBalance">฿0</h2>
-      <p>รายรับ - รายจ่าย</p>
-    </div>
-
-    <button class="dash-add" onclick="openQuick()">
-      <i class="fa-solid fa-plus"></i>
-    </button>
+  <div>
+    <small>ยอดคงเหลือสุทธิ</small>
+    <h2 id="dashBalance">฿0</h2>
+    <p>รายรับ - รายจ่าย</p>
   </div>
+</div>
 
   <div class="quick-actions">
     <button onclick="openForm('income')">
@@ -1445,7 +1485,7 @@ textarea:focus{
 
     <button onclick="go('homepay')">
       <i class="fa-solid fa-house"></i>
-      ค่างวด
+      ผ่อนบ้าน
     </button>
   </div>
 
@@ -1529,6 +1569,26 @@ textarea:focus{
       <h3><i class="fa-solid fa-building title-icon"></i> ค่าเช่าคอนโด</h3>
       <button class="btn" onclick="openForm('rentUnit')">+ เพิ่มห้อง</button>
     </div>
+
+    <!-- ✅ เพิ่มกล่องยอดรวม -->
+    <div class="rent-summary-card">
+      <div class="label">ยอดคงเหลือสุทธิ</div>
+      <div class="value" id="rentNetTotal">฿0</div>
+      <div class="sub">รายรับค่าเช่า - ค่าใช้จ่าย</div>
+    </div>
+
+    <div class="rent-mini-grid">
+      <div class="mini-card income">
+        <span>รับค่าเช่า</span>
+        <strong id="rentIncomeTotal">฿0</strong>
+      </div>
+
+      <div class="mini-card expense">
+        <span>ค่าใช้จ่าย</span>
+        <strong id="rentExpenseTotal">฿0</strong>
+      </div>
+    </div>
+
     <div class="list" id="rentUnitList"></div>
   </div>
 </section>
@@ -1801,18 +1861,68 @@ async function readLoanSlipImage(input){
 
 function openRentalUnitDetail(unitId){
   const unit = db.rentUnits.find(x => x.id === unitId);
+  if(!unit) return showError('ไม่พบข้อมูลห้องเช่านี้');
 
-  if(!unit){
-    return showError('ไม่พบข้อมูลห้องเช่านี้');
-  }
+  const pays = db.rentPayments.filter(p => p.rental_unit_id === unitId);
+  const expenses = db.rentExpenses.filter(e => e.rental_unit_id === unitId);
+
+  const years = [...new Set([
+    ...pays.map(p => String(p.pay_date || '').slice(0,4)),
+    ...expenses.map(e => String(e.expense_date || '').slice(0,4))
+  ].filter(Boolean))].sort((a,b)=>Number(b)-Number(a));
+
+  const yearRows = years.length ? years.map(y => {
+    const ypays = pays.filter(p => String(p.pay_date || '').slice(0,4) === y);
+    const yexp = expenses.filter(e => String(e.expense_date || '').slice(0,4) === y);
+    const total = sum(ypays,'total_paid') - sum(yexp,'amount');
+
+    return `
+      <div class="detail-row" onclick="openRentalYearDetail('${unitId}','${y}')" style="cursor:pointer">
+        <div>
+          <h4>ปี ${y}</h4>
+          <p>รับค่าเช่า ${money(sum(ypays,'total_paid'))} • ค่าใช้จ่าย ${money(sum(yexp,'amount'))}</p>
+        </div>
+        <div class="amount ${total >= 0 ? 'in' : 'out'}">${money(total)}</div>
+      </div>
+    `;
+  }).join('') : `<div class="empty">ยังไม่มีประวัติ</div>`;
+
+  Swal.fire({
+    title:'',
+    html:`
+      <div class="detail-box">
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">
+            ${unit.room_name || '-'} • ${unit.property_name || ''}
+          </h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">
+            ผู้เช่า: ${unit.tenant_name || '-'} • ค่าเช่า ${money(unit.rent_amount || 0)}
+          </p>
+          <div class="detail-total">
+            ${money(sum(pays,'total_paid') - sum(expenses,'amount'))}
+          </div>
+        </div>
+
+        <h3 style="color:var(--pink)">ประวัติค่าเช่าแยกตามปี</h3>
+        <div class="list">${yearRows}</div>
+      </div>
+    `,
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
+  });
+}
+
+function openRentalYearDetail(unitId, year){
+  const unit = db.rentUnits.find(x => x.id === unitId);
 
   const pays = db.rentPayments
-    .filter(p => p.rental_unit_id === unitId)
-    .sort((a,b) => String(b.pay_date || '').localeCompare(String(a.pay_date || '')));
+    .filter(p => p.rental_unit_id === unitId && String(p.pay_date || '').slice(0,4) === year)
+    .sort((a,b)=>String(b.pay_date || '').localeCompare(String(a.pay_date || '')));
 
   const expenses = db.rentExpenses
-    .filter(e => e.rental_unit_id === unitId)
-    .sort((a,b) => String(b.expense_date || '').localeCompare(String(a.expense_date || '')));
+    .filter(e => e.rental_unit_id === unitId && String(e.expense_date || '').slice(0,4) === year)
+    .sort((a,b)=>String(b.expense_date || '').localeCompare(String(a.expense_date || '')));
 
   const payRows = pays.length ? pays.map(p => `
     <div class="detail-row">
@@ -1824,44 +1934,47 @@ function openRentalUnitDetail(unitId){
           อื่นๆ ${money(p.other_paid || 0)}
           ${p.note ? '<br>หมายเหตุ: ' + p.note : ''}
         </p>
+        <div class="actions">
+          <button class="mini" onclick="editRentPayment('${p.id}')">แก้ไข</button>
+          <button class="mini danger" onclick="deleteRentPayment('${p.id}','${unitId}')">ลบ</button>
+        </div>
       </div>
       <div class="amount in">${money(p.total_paid || 0)}</div>
     </div>
-  `).join('') : `<div class="empty">ยังไม่มีประวัติรับค่าเช่า</div>`;
+  `).join('') : `<div class="empty">ไม่มีรายการรับค่าเช่าปีนี้</div>`;
 
   const expenseRows = expenses.length ? expenses.map(e => `
     <div class="detail-row">
       <div>
         <h4>${e.title || 'ค่าใช้จ่าย'}</h4>
         <p>${e.expense_date || '-'} ${e.note ? '• ' + e.note : ''}</p>
+        <div class="actions">
+          <button class="mini" onclick="editRentExpense('${e.id}')">แก้ไข</button>
+          <button class="mini danger" onclick="deleteRentExpense('${e.id}','${unitId}')">ลบ</button>
+        </div>
       </div>
       <div class="amount out">${money(e.amount || 0)}</div>
     </div>
-  `).join('') : `<div class="empty">ยังไม่มีค่าใช้จ่ายของห้องนี้</div>`;
+  `).join('') : `<div class="empty">ไม่มีค่าใช้จ่ายปีนี้</div>`;
 
   Swal.fire({
-    title: '',
-    html: `
+    title:'',
+    html:`
       <div class="detail-box">
+        <button class="btn white" style="margin-bottom:12px"
+          onclick="Swal.close(); openRentalUnitDetail('${unitId}')">
+          ← กลับ
+        </button>
+
         <div class="detail-head">
-          <h2 style="margin:0;color:var(--pink)">
-            ${unit.room_name || '-'} • ${unit.property_name || ''}
-          </h2>
+          <h2 style="margin:0;color:var(--pink)">ปี ${year}</h2>
           <p style="margin:6px 0;color:var(--muted);font-weight:800">
-            ผู้เช่า: ${unit.tenant_name || '-'} • ค่าเช่า ${money(unit.rent_amount || 0)}
+            ${unit?.room_name || '-'} • ${unit?.property_name || ''}
           </p>
-          <div class="detail-total">${money(sum(pays, 'total_paid') - sum(expenses, 'amount'))}</div>
+          <div class="detail-total">
+            ${money(sum(pays,'total_paid') - sum(expenses,'amount'))}
+          </div>
         </div>
-
-        <button class="btn" style="width:100%;margin-bottom:10px"
-          onclick="Swal.close(); openForm('rentPay','${unitId}')">
-          รับค่าเช่า
-        </button>
-
-        <button class="btn white" style="width:100%;margin-bottom:12px"
-          onclick="Swal.close(); openForm('rentExpense','${unitId}')">
-          เพิ่มค่าใช้จ่าย
-        </button>
 
         <h3 style="color:var(--pink)">ประวัติรับค่าเช่า</h3>
         <div class="list">${payRows}</div>
@@ -1870,10 +1983,97 @@ function openRentalUnitDetail(unitId){
         <div class="list">${expenseRows}</div>
       </div>
     `,
-    width: 760,
+    width:760,
     showConfirmButton:false,
     showCloseButton:true
   });
+}
+
+async function deleteRentPayment(id, unitId, year = 'all'){
+  const result = await Swal.fire({
+    title: 'ลบรายการรับค่าเช่า?',
+    text: 'ต้องการลบรายการนี้ใช่ไหม',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ลบ',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#ff5fa2'
+  });
+
+  if(!result.isConfirmed) return;
+
+  const { error } = await supabaseClient
+    .from('money_rental_payments')
+    .delete()
+    .eq('id', id);
+
+  if(error){
+    return showError('ลบไม่สำเร็จ : ' + error.message);
+  }
+
+  await loadDataFromSupabase();
+  openRentalUnitDetail(unitId, year);
+  showSuccess('ลบรายการสำเร็จ');
+}
+
+async function deleteRentExpense(id, unitId, year = 'all'){
+  const result = await Swal.fire({
+    title: 'ลบค่าใช้จ่าย?',
+    text: 'ต้องการลบรายการนี้ใช่ไหม',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ลบ',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#ff5fa2'
+  });
+
+  if(!result.isConfirmed) return;
+
+  const { error } = await supabaseClient
+    .from('money_rental_expenses')
+    .delete()
+    .eq('id', id);
+
+  if(error){
+    return showError('ลบไม่สำเร็จ : ' + error.message);
+  }
+
+  await loadDataFromSupabase();
+  openRentalUnitDetail(unitId, year);
+  showSuccess('ลบรายการสำเร็จ');
+}
+
+function editRentPayment(id){
+  const p = db.rentPayments.find(x => x.id === id);
+  if(!p) return showError('ไม่พบรายการรับค่าเช่า');
+
+  Swal.close();
+  openForm('rentPay', p.rental_unit_id);
+
+  setTimeout(() => {
+    el('f_date').value = p.pay_date || today;
+    el('f_rent_paid').value = p.rent_paid || 0;
+    el('f_parking_paid').value = p.parking_paid || 0;
+    el('f_other_paid').value = p.other_paid || 0;
+    el('f_note').value = p.note || '';
+    window.editRentPaymentId = id;
+  }, 100);
+}
+
+function editRentExpense(id){
+  const e = db.rentExpenses.find(x => x.id === id);
+  if(!e) return showError('ไม่พบรายการค่าใช้จ่าย');
+
+  Swal.close();
+  openForm('rentExpense', e.rental_unit_id);
+
+  setTimeout(() => {
+    el('f_date').value = e.expense_date || today;
+    el('f_title').value = e.title || '';
+    el('f_amount').value = e.amount || 0;
+    el('f_note').value = e.note || '';
+    window.editRentExpenseId = id;
+  }, 100);
 }
 
 async function loadDataFromSupabase(){
@@ -2096,54 +2296,21 @@ function val(x){ return el(x).value.trim(); }
 function num(x){ return Number(el(x).value || 0); }
 function money(n){ return '฿' + Number(n||0).toLocaleString('th-TH',{maximumFractionDigits:0}); }
 function sum(arr,k='amount'){ return arr.reduce((s,x)=>s+Number(x[k]||0),0); }
+
 function pageName(id){
   return {
-    dashboard:[
-  '<img src="Boot.jpg" class="app-logo" alt="Logo"> สมุดเงินหวานๆ',
-  'บันทึกรายรับ รายจ่าย ผ่อนบ้าน เงินออม ทองออม และเก็บใบเสร็จไว้ในที่เดียว'
-   ],
-
-    income:[
-      '<i class="fa-solid fa-wallet" style="color:#ff5fa2"></i> รายรับ',
-      'แยกยอดตามหมวด เช่น เงินเดือน ขายของ โบนัส'
-    ],
-
-    expense:[
-      '<i class="fa-solid fa-receipt" style="color:#ff5fa2"></i> รายจ่าย',
-      'บันทึกค่าใช้จ่ายพร้อมหมวดหมู่และใบเสร็จ'
-    ],
-
-    homepay:[
-      '<i class="fa-solid fa-house" style="color:#ff5fa2"></i>สินเชื่อ',
-      'สร้างรายการผ่อน แล้วบันทึกการจ่าย'
-    ],
-
-    saving:[
-      '<i class="fa-solid fa-piggy-bank" style="color:#ff5fa2"></i> เงินออม',
-      'ตั้งเป้าหมายเงินออม'
-    ],
-
-    gold:[
-      '<i class="fa-solid fa-medal" style="color:#ff5fa2"></i> ทองออม',
-      'บันทึกยอดออมทอง น้ำหนักทอง และราคาทอง'
-    ],
-
-    receipts:[
-      '<i class="fa-solid fa-camera" style="color:#ff5fa2"></i> คลังใบเสร็จ',
-      'เก็บรูปใบเสร็จและรายละเอียดการจ่าย'
-    ],
-
-	rental:[
-  	'<i class="fa-solid fa-building" style="color:#ff5fa2"></i> ค่าเช่าคอนโด',
-  	'เก็บค่าเช่าห้อง ค่าที่จอดรถ และค่าใช้จ่าย'
-	],
-
-    more:[
-      '<i class="fa-solid fa-border-all" style="color:#ff5fa2"></i> เมนูทั้งหมด',
-      'รวมทุกเมนูและการตั้งค่า'
-    ]
-  }[id] || ['สมุดเงินหวานๆ',''];
+    dashboard:['<img src="Boot.jpg" class="app-logo" alt="Logo"> สมุดเงินหวานๆ'],
+    income:['<i class="fa-solid fa-wallet" style="color:#ff5fa2"></i> รายรับ'],
+    expense:['<i class="fa-solid fa-receipt" style="color:#ff5fa2"></i> รายจ่าย'],
+    rental:['<i class="fa-solid fa-building" style="color:#ff5fa2"></i> ค่าเช่า'],
+    homepay:['<i class="fa-solid fa-house" style="color:#ff5fa2"></i> สินเชื่อ'],
+    saving:['<i class="fa-solid fa-piggy-bank" style="color:#ff5fa2"></i> เงินออม'],
+    gold:['<i class="fa-solid fa-medal" style="color:#ff5fa2"></i> ทองออม'],
+    receipts:['<i class="fa-solid fa-camera" style="color:#ff5fa2"></i> คลังใบเสร็จ'],
+    more:['<i class="fa-solid fa-border-all" style="color:#ff5fa2"></i> เมนูทั้งหมด']
+  }[id] || ['สมุดเงินหวานๆ'];
 }
+
 function go(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 
@@ -2160,9 +2327,8 @@ function go(id){
   if(id==='expense') navs[2]?.classList.add('active');
   if(id==='more') navs[3]?.classList.add('active');
 
-  const [t,sub]=pageName(id);
-  pageTitle.innerHTML=t;
-  pageSub.textContent=sub;
+  const [t] = pageName(id);
+  pageTitle.innerHTML = t;
 
   render();
   scrollTo({top:0,behavior:'smooth'});
@@ -2986,7 +3152,7 @@ function renderIncome(){
     `;
   }).join('');
 }
-function openIncomeCategoryDetail(categoryName, year = 'all'){
+function openIncomeCategoryDetail(categoryName){
   const allRows = db.income
     .filter(x => x.category === categoryName)
     .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
@@ -2995,62 +3161,94 @@ function openIncomeCategoryDetail(categoryName, year = 'all'){
     allRows.map(x => String(x.date || '').slice(0,4)).filter(Boolean)
   )].sort((a,b) => Number(b) - Number(a));
 
-  const rows = year === 'all'
-    ? allRows
-    : allRows.filter(x => String(x.date || '').slice(0,4) === year);
+  const yearRows = years.length ? years.map(y => {
+    const rows = allRows.filter(x => String(x.date || '').slice(0,4) === y);
+    const total = sum(rows);
 
-  const total = sum(rows);
-
-  const yearButtons = `
-    <div class="year-filter">
-      <button onclick="Swal.close(); openIncomeCategoryDetail('${categoryName}','all')">ทั้งหมด</button>
-      ${years.map(y => `
-        <button onclick="Swal.close(); openIncomeCategoryDetail('${categoryName}','${y}')">${y}</button>
-      `).join('')}
-    </div>
-  `;
-
-  const html = rows.length
-    ? rows.map(x => `
-      <div class="detail-row">
+    return `
+      <div class="detail-row" onclick="openIncomeYearDetail('${categoryName}','${y}')" style="cursor:pointer">
         <div>
-          <h4>${x.title || x.category}</h4>
-          <p>${x.date || '-'} ${x.note ? '• ' + x.note : ''}</p>
+          <h4>ปี ${y}</h4>
+          <p>${rows.length} รายการ</p>
         </div>
-
-        <div style="text-align:right">
-          <div class="amount in">${money(x.amount)}</div>
-          <div class="actions" style="justify-content:flex-end">
-            <button class="mini" onclick="editIncome('${x.id}')">แก้ไข</button>
-            <button class="mini danger" onclick="deleteIncome('${x.id}', '${categoryName}', '${year}')">ลบ</button>
-          </div>
-        </div>
+        <div class="amount in">${money(total)}</div>
       </div>
-    `).join('')
-    : `<div class="empty">ยังไม่มีรายการ</div>`;
+    `;
+  }).join('') : `<div class="empty">ยังไม่มีรายการ</div>`;
 
   Swal.fire({
-    title: '',
-    html: `
+    title:'',
+    html:`
       <div class="detail-box">
         <div class="detail-head">
           <h2 style="margin:0;color:var(--pink)">รายละเอียด ${categoryName}</h2>
           <p style="margin:6px 0;color:var(--muted);font-weight:800">
-            ${year === 'all' ? 'รวมทุกปี' : 'ปี ' + year} • ${rows.length} รายการ
+            รวมทุกปี • ${allRows.length} รายการ
           </p>
-          <div class="detail-total">${money(total)}</div>
+          <div class="detail-total">${money(sum(allRows))}</div>
         </div>
 
-        ${yearButtons}
+        <h3 style="color:var(--pink)">แยกตามปี</h3>
+        <div class="list">${yearRows}</div>
+      </div>
+    `,
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
+  });
+}
+
+function openIncomeYearDetail(categoryName, year){
+  const rows = db.income
+    .filter(x =>
+      x.category === categoryName &&
+      String(x.date || '').slice(0,4) === year
+    )
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  const html = rows.length ? rows.map(x => `
+    <div class="detail-row">
+      <div>
+        <h4>${x.title || x.category}</h4>
+        <p>${x.date || '-'} ${x.note ? '• ' + x.note : ''}</p>
+      </div>
+
+      <div style="text-align:right">
+        <div class="amount in">${money(x.amount)}</div>
+        <div class="actions" style="justify-content:flex-end">
+          <button class="mini" onclick="editIncome('${x.id}')">แก้ไข</button>
+          <button class="mini danger" onclick="deleteIncome('${x.id}', '${categoryName}', '${year}')">ลบ</button>
+        </div>
+      </div>
+    </div>
+  `).join('') : `<div class="empty">ยังไม่มีรายการ</div>`;
+
+  Swal.fire({
+    title:'',
+    html:`
+      <div class="detail-box">
+        <button class="btn white" style="margin-bottom:12px"
+          onclick="Swal.close(); openIncomeCategoryDetail('${categoryName}')">
+          ← กลับ
+        </button>
+
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">${categoryName}</h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">
+            ปี ${year} • ${rows.length} รายการ
+          </p>
+          <div class="detail-total">${money(sum(rows))}</div>
+        </div>
 
         <div class="list">${html}</div>
       </div>
     `,
-    width: 760,
-    showConfirmButton: false,
-    showCloseButton: true
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
   });
 }
+
 async function addIncome() {
   if (num('f_amount') <= 0) {
     return showError('กรอกจำนวนเงินก่อนค่ะ');
@@ -3181,72 +3379,104 @@ function renderExpense(){
     `;
   }).join('');
 }
-function openExpenseCategoryDetail(categoryName, year = 'all'){
-  const allRows = db.expense.filter(x => x.category === categoryName);
 
-  const years = [...new Set(allRows.map(x => String(x.date || '').slice(0,4)).filter(Boolean))];
+function openExpenseCategoryDetail(categoryName){
+  const allRows = db.expense
+    .filter(x => x.category === categoryName)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
 
-  const rows = year === 'all'
-    ? allRows
-    : allRows.filter(x => String(x.date || '').slice(0,4) === year);
+  const years = [...new Set(
+    allRows.map(x => String(x.date || '').slice(0,4)).filter(Boolean)
+  )].sort((a,b) => Number(b) - Number(a));
 
-  const total = sum(rows);
+  const yearRows = years.length ? years.map(y => {
+    const rows = allRows.filter(x => String(x.date || '').slice(0,4) === y);
+    const total = sum(rows);
 
-  const yearButtons = `
-    <div class="year-filter">
-      <button onclick="Swal.close(); openExpenseCategoryDetail('${categoryName}','all')">ทั้งหมด</button>
-      ${years.map(y => `
-        <button onclick="Swal.close(); openExpenseCategoryDetail('${categoryName}','${y}')">${y}</button>
-      `).join('')}
-    </div>
-  `;
-
-  const html = rows.length
-    ? rows.map(x => `
-      <div class="detail-row">
+    return `
+      <div class="detail-row" onclick="openExpenseYearDetail('${categoryName}','${y}')" style="cursor:pointer">
         <div>
-          <h4>${x.title || x.category}</h4>
-          <p>${x.date || '-'} ${x.note ? '• ' + x.note : ''}</p>
+          <h4>ปี ${y}</h4>
+          <p>${rows.length} รายการ</p>
         </div>
-
-        <div style="text-align:right">
-          <div class="amount out">${money(x.amount)}</div>
-
-          <div class="actions" style="justify-content:flex-end">
-            <button class="mini" onclick="editExpense('${x.id}'); Swal.close();">
-              แก้ไข
-            </button>
-            <button class="mini danger" onclick="del('expense','${x.id}'); Swal.close();">
-              ลบ
-            </button>
-          </div>
-        </div>
+        <div class="amount out">${money(total)}</div>
       </div>
-    `).join('')
-    : `<div class="empty">ยังไม่มีรายการ</div>`;
+    `;
+  }).join('') : `<div class="empty">ยังไม่มีรายการ</div>`;
 
   Swal.fire({
-    title: '',
-    html: `
+    title:'',
+    html:`
       <div class="detail-box">
         <div class="detail-head">
           <h2 style="margin:0;color:var(--pink)">รายละเอียด ${categoryName}</h2>
           <p style="margin:6px 0;color:var(--muted);font-weight:800">
-            ${year === 'all' ? 'รวมทุกปี' : 'ปี ' + year} • ${rows.length} รายการ
+            รวมทุกปี • ${allRows.length} รายการ
           </p>
-          <div class="detail-total" style="color:var(--red)">${money(total)}</div>
+          <div class="detail-total" style="color:var(--red)">${money(sum(allRows))}</div>
         </div>
 
-        ${yearButtons}
+        <h3 style="color:var(--pink)">แยกตามปี</h3>
+        <div class="list">${yearRows}</div>
+      </div>
+    `,
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
+  });
+}
+
+function openExpenseYearDetail(categoryName, year){
+  const rows = db.expense
+    .filter(x =>
+      x.category === categoryName &&
+      String(x.date || '').slice(0,4) === year
+    )
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  const html = rows.length ? rows.map(x => `
+    <div class="detail-row">
+      <div>
+        <h4>${x.title || x.category}</h4>
+        <p>${x.date || '-'} ${x.note ? '• ' + x.note : ''}</p>
+      </div>
+
+      <div style="text-align:right">
+        <div class="amount out">${money(x.amount)}</div>
+        <div class="actions" style="justify-content:flex-end">
+          <button class="mini" onclick="editExpense('${x.id}'); Swal.close();">แก้ไข</button>
+          <button class="mini danger" onclick="del('expense','${x.id}'); Swal.close();">ลบ</button>
+        </div>
+      </div>
+    </div>
+  `).join('') : `<div class="empty">ยังไม่มีรายการ</div>`;
+
+  Swal.fire({
+    title:'',
+    html:`
+      <div class="detail-box">
+        <button class="btn white" style="margin-bottom:12px"
+          onclick="Swal.close(); openExpenseCategoryDetail('${categoryName}')">
+          ← กลับ
+        </button>
+
+        <div class="detail-head">
+          <h2 style="margin:0;color:var(--pink)">${categoryName}</h2>
+          <p style="margin:6px 0;color:var(--muted);font-weight:800">
+            ปี ${year} • ${rows.length} รายการ
+          </p>
+          <div class="detail-total" style="color:var(--red)">${money(sum(rows))}</div>
+        </div>
 
         <div class="list">${html}</div>
       </div>
     `,
-    width: 760,
-    showConfirmButton: false,
-    showCloseButton: true
+    width:760,
+    showConfirmButton:false,
+    showCloseButton:true
   });
 }
+
 function renderLoans(){
   if(!db.loans.length){
     loanList.innerHTML = empty('ยังไม่มีรายการผ่อนบ้าน/หนี้ กด + เพิ่มสัญญาก่อนได้เลยค่ะ');
@@ -3676,21 +3906,30 @@ async function addRentPayment(){
     return showError('กรอกยอดรับเงินก่อนค่ะ');
   }
 
-  const { error } = await supabaseClient
-    .from('money_rental_payments')
-    .insert({
-      rental_unit_id: unitId,
-      pay_date: val('f_date'),
-      rent_paid: rent,
-      parking_paid: parking,
-      other_paid: other,
-      total_paid: total,
-      note: val('f_note')
-    });
+  const payload = {
+    rental_unit_id: unitId,
+    pay_date: val('f_date'),
+    rent_paid: rent,
+    parking_paid: parking,
+    other_paid: other,
+    total_paid: total,
+    note: val('f_note')
+  };
+
+  const { error } = window.editRentPaymentId
+    ? await supabaseClient
+        .from('money_rental_payments')
+        .update(payload)
+        .eq('id', window.editRentPaymentId)
+    : await supabaseClient
+        .from('money_rental_payments')
+        .insert(payload);
 
   if(error){
     return showError('บันทึกรับค่าเช่าไม่สำเร็จ : ' + error.message);
   }
+
+  window.editRentPaymentId = null;
 
   closeForm();
   showSuccess('บันทึกรับค่าเช่าสำเร็จ');
@@ -3705,19 +3944,28 @@ async function addRentExpense(){
     return showError('กรอกจำนวนเงินก่อนค่ะ');
   }
 
-  const { error } = await supabaseClient
-    .from('money_rental_expenses')
-    .insert({
-      rental_unit_id: unitId,
-      expense_date: val('f_date'),
-      title: val('f_title'),
-      amount: num('f_amount'),
-      note: val('f_note')
-    });
+  const payload = {
+    rental_unit_id: unitId,
+    expense_date: val('f_date'),
+    title: val('f_title'),
+    amount: num('f_amount'),
+    note: val('f_note')
+  };
+
+  const { error } = window.editRentExpenseId
+    ? await supabaseClient
+        .from('money_rental_expenses')
+        .update(payload)
+        .eq('id', window.editRentExpenseId)
+    : await supabaseClient
+        .from('money_rental_expenses')
+        .insert(payload);
 
   if(error){
     return showError('บันทึกค่าใช้จ่ายไม่สำเร็จ : ' + error.message);
   }
+
+  window.editRentExpenseId = null;
 
   closeForm();
   showSuccess('บันทึกค่าใช้จ่ายสำเร็จ');
@@ -3728,6 +3976,14 @@ async function addRentExpense(){
 function renderRental(){
   const box = el('rentUnitList');
   if(!box) return;
+
+const rentIncomeTotal = sum(db.rentPayments || [], 'total_paid');
+const rentExpenseTotal = sum(db.rentExpenses || [], 'amount');
+const rentNetTotal = rentIncomeTotal - rentExpenseTotal;
+
+if(el('rentIncomeTotal')) el('rentIncomeTotal').textContent = money(rentIncomeTotal);
+if(el('rentExpenseTotal')) el('rentExpenseTotal').textContent = money(rentExpenseTotal);
+if(el('rentNetTotal')) el('rentNetTotal').textContent = money(rentNetTotal);
 
   box.innerHTML = db.rentUnits.length ? db.rentUnits.map(r => {
     const pays = db.rentPayments.filter(p => p.rental_unit_id === r.id);
